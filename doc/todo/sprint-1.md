@@ -26,7 +26,7 @@
 - Status: Done - Project structure and configuration completed
 
 #### TASK-002: Set up React Frontend with Routing
-- [x] Priority: P0
+- [~] Priority: P0
 - Description: Initialize the React application with routing and basic page structure.
 - Acceptance Criteria:
   - React application created using Create React App or Vite
