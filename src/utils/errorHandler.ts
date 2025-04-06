@@ -37,15 +37,35 @@ export const handleSupabaseError = (error: PostgrestError | Error | null): Supab
 
   // Auth errors
   if (error.message.includes('Invalid login credentials')) {
-    return new SupabaseError('Invalid email or password', error);
+    return new SupabaseError('The email or password you entered is incorrect', error);
   }
 
   if (error.message.includes('Email not confirmed')) {
-    return new SupabaseError('Please verify your email address', error);
+    return new SupabaseError('Please verify your email address before logging in', error);
   }
 
   if (error.message.includes('Rate limit exceeded')) {
-    return new SupabaseError('Too many attempts. Please try again later', error);
+    return new SupabaseError('Too many login attempts. Please try again later', error);
+  }
+
+  // Handle user not found case
+  if (error.message.includes('User not found') || error.message.includes('No user found')) {
+    return new SupabaseError('No account found with this email. Please register first.', error);
+  }
+
+  // Handle invalid email format
+  if (error.message.includes('Invalid email')) {
+    return new SupabaseError('Please enter a valid email address', error);
+  }
+
+  // Handle password too weak
+  if (error.message.includes('Password should be at least 6 characters')) {
+    return new SupabaseError('Password must be at least 6 characters long', error);
+  }
+
+  // Handle account locked
+  if (error.message.includes('Account locked')) {
+    return new SupabaseError('Your account has been locked. Please contact support', error);
   }
 
   return new SupabaseError(error.message, error);

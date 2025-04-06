@@ -1,31 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { isValidEmail, isValidPhone, formatPhoneNumber } from '../../utils/validation';
+import { Toast, Button, Input, Card, CardHeader, CardBody, CardFooter } from '../../components/ui';
 
 const Login: React.FC = () => {
   const [loginType, setLoginType] = useState<'otp' | 'password'>('otp');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  const [error, setError] = useState<string | ReactNode | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { loginWithOTP, verifyOTP, loginWithPassword } = useAuth();
 
   const from = location.state?.from?.pathname || '/';
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
+    // Validate phone number
+    const formattedPhone = formatPhoneNumber(phoneNumber);
+    if (!isValidPhone(formattedPhone)) {
+      setError('Please enter a valid Indian phone number');
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      // TODO: Implement actual OTP sending logic with Supabase
-      // For now, we'll simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setOtpSent(true);
+      const response = await loginWithOTP(formattedPhone);
+      if (response.success) {
+        setOtpSent(true);
+        setSuccess('OTP sent successfully');
+      } else {
+        setError(response.error || 'Failed to send OTP');
+        
+        // If SMS service is not configured, suggest email login
+        if (response.error?.includes('SMS service is not properly configured')) {
+          setError('SMS service is not available. Please use email login instead.');
+          // Auto-switch to email login
+          setLoginType('password');
+        }
+      }
     } catch (error) {
       console.error('Error sending OTP:', error);
+      setError('An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -33,19 +58,27 @@ const Login: React.FC = () => {
 
   const handleOtpLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
+    // Validate OTP
+    if (otp.length !== 6) {
+      setError('Please enter a valid 6-digit OTP');
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      // TODO: Implement actual OTP verification logic with Supabase
-      // For now, we'll simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      login({
-        id: '1',
-        name: 'Test User',
-        email: 'test@example.com',
-      });
-      navigate(from, { replace: true });
+      const formattedPhone = formatPhoneNumber(phoneNumber);
+      const response = await verifyOTP(formattedPhone, otp);
+      if (response.success) {
+        setSuccess('Login successful');
+        navigate(from, { replace: true });
+      } else {
+        setError(response.error || 'Failed to verify OTP');
+      }
     } catch (error) {
       console.error('Error verifying OTP:', error);
+      setError('An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -53,19 +86,63 @@ const Login: React.FC = () => {
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
+    // Validate email
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    
+    // Validate password
+    if (!password) {
+      setError('Please enter your password');
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      // TODO: Implement actual password login logic with Supabase
-      // For now, we'll simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      login({
-        id: '1',
-        name: 'Test User',
-        email: 'test@example.com',
-      });
-      navigate(from, { replace: true });
+      const response = await loginWithPassword(email, password);
+      if (response.success) {
+        setSuccess('Login successful');
+        navigate(from, { replace: true });
+      } else {
+        // Handle specific error cases
+        if (response.error?.includes('No account found')) {
+          setError(
+            <div className="text-center">
+              <p className="text-red-600 font-medium">No account found with this email.</p>
+              <p className="text-sm text-gray-600 mt-1">Would you like to create one?</p>
+              <button
+                type="button"
+                className="text-primary-600 hover:text-primary-500 font-medium mt-2"
+                onClick={() => navigate('/register')}
+              >
+                Create an account
+              </button>
+            </div>
+          );
+        } else if (response.error?.includes('Incorrect password')) {
+          setError(
+            <div className="text-center">
+              <p className="text-red-600 font-medium">Incorrect password.</p>
+              <p className="text-sm text-gray-600 mt-1">Please check your password and try again.</p>
+            </div>
+          );
+        } else if (response.error?.includes('verify your email')) {
+          setError(
+            <div className="text-center">
+              <p className="text-red-600 font-medium">Please verify your email address.</p>
+              <p className="text-sm text-gray-600 mt-1">Check your inbox for the verification link.</p>
+            </div>
+          );
+        } else {
+          setError(response.error || 'An error occurred during login');
+        }
+      }
     } catch (error) {
       console.error('Error logging in:', error);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -74,156 +151,150 @@ const Login: React.FC = () => {
   const resetOtpForm = () => {
     setOtpSent(false);
     setOtp('');
+    setError(null);
   };
 
   return (
-    <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <Card className="max-w-md w-full">
+        <CardHeader>
+          <h2 className="text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
-        </div>
-        <div className="mt-8">
+        </CardHeader>
+        
+        <CardBody>
+          {error && (
+            <Toast 
+              message={error} 
+              variant="error" 
+              onClose={() => setError(null)} 
+            />
+          )}
+          
+          {success && (
+            <Toast 
+              message={success} 
+              variant="success" 
+              onClose={() => setSuccess(null)} 
+            />
+          )}
+          
           <div className="flex justify-center space-x-4 mb-6">
-            <button
-              type="button"
-              className={`px-4 py-2 text-sm font-medium rounded-md ${
-                loginType === 'otp'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-200 text-gray-700'
-              }`}
+            <Button
+              variant={loginType === 'otp' ? 'primary' : 'secondary'}
+              size="sm"
               onClick={() => {
                 setLoginType('otp');
                 resetOtpForm();
               }}
             >
               OTP Login
-            </button>
-            <button
-              type="button"
-              className={`px-4 py-2 text-sm font-medium rounded-md ${
-                loginType === 'password'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-200 text-gray-700'
-              }`}
+            </Button>
+            <Button
+              variant={loginType === 'password' ? 'primary' : 'secondary'}
+              size="sm"
               onClick={() => setLoginType('password')}
             >
               Password Login
-            </button>
+            </Button>
           </div>
 
           {loginType === 'otp' ? (
-            <form className="mt-8 space-y-6" onSubmit={otpSent ? handleOtpLogin : handleSendOtp}>
-              <div className="rounded-md shadow-sm -space-y-px">
-                <div>
-                  <label htmlFor="phone-number" className="sr-only">
-                    Phone Number
-                  </label>
-                  <input
-                    id="phone-number"
-                    name="phone"
-                    type="tel"
-                    required
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                    placeholder="Phone Number"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    disabled={otpSent}
-                  />
-                </div>
+            <form className="space-y-6" onSubmit={otpSent ? handleOtpLogin : handleSendOtp}>
+              <div className="space-y-4">
+                <Input
+                  id="phone-number"
+                  name="phone"
+                  type="tel"
+                  required
+                  placeholder="Phone Number (e.g., +91XXXXXXXXXX)"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  disabled={otpSent}
+                />
                 {otpSent && (
-                  <div>
-                    <label htmlFor="otp" className="sr-only">
-                      OTP
-                    </label>
-                    <input
-                      id="otp"
-                      name="otp"
-                      type="text"
-                      required
-                      className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                      placeholder="Enter OTP"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                    />
-                  </div>
+                  <Input
+                    id="otp"
+                    name="otp"
+                    type="text"
+                    required
+                    placeholder="Enter 6-digit OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    maxLength={6}
+                  />
                 )}
               </div>
 
               <div className="flex flex-col space-y-4">
-                <button
+                <Button
                   type="submit"
-                  disabled={isLoading}
-                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  variant="primary"
+                  isLoading={isLoading}
+                  fullWidth
                 >
-                  {isLoading
-                    ? otpSent
-                      ? 'Verifying...'
-                      : 'Sending OTP...'
-                    : otpSent
-                    ? 'Verify OTP'
-                    : 'Send OTP'}
-                </button>
+                  {otpSent ? 'Verify OTP' : 'Send OTP'}
+                </Button>
                 {otpSent && (
-                  <button
+                  <Button
                     type="button"
+                    variant="text"
                     onClick={resetOtpForm}
-                    className="text-sm text-primary-600 hover:text-primary-500"
                   >
                     Change phone number
-                  </button>
+                  </Button>
                 )}
               </div>
             </form>
           ) : (
-            <form className="mt-8 space-y-6" onSubmit={handlePasswordLogin}>
-              <div className="rounded-md shadow-sm -space-y-px">
-                <div>
-                  <label htmlFor="username" className="sr-only">
-                    Username
-                  </label>
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    required
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="password" className="sr-only">
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
+            <form className="space-y-6" onSubmit={handlePasswordLogin}>
+              <div className="space-y-4">
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
 
-              <div>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                >
-                  {isLoading ? 'Signing in...' : 'Sign in with Password'}
-                </button>
-              </div>
+              <Button
+                type="submit"
+                variant="primary"
+                isLoading={isLoading}
+                fullWidth
+              >
+                Sign in with Password
+              </Button>
             </form>
           )}
-        </div>
-      </div>
+        </CardBody>
+        
+        <CardFooter>
+          <p className="text-center text-sm text-gray-600">
+            Don't have an account?{' '}
+            <button
+              type="button"
+              className="font-medium text-primary-600 hover:text-primary-500"
+              onClick={() => navigate('/register')}
+            >
+              Register here
+            </button>
+          </p>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

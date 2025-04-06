@@ -1,50 +1,36 @@
 import { supabase } from '../config/supabase';
 import { handleSupabaseError } from '../utils/errorHandler';
-
-export interface AuthResponse {
-  success: boolean;
-  data?: any;
-  error?: string;
-}
-
-export interface OTPRequestResponse {
-  success: boolean;
-  error?: string;
-}
-
-export interface OTPVerifyResponse {
-  success: boolean;
-  session?: any;
-  error?: string;
-}
-
-export interface LoginResponse {
-  success: boolean;
-  session?: any;
-  error?: string;
-}
-
-export interface RegisterResponse {
-  success: boolean;
-  user?: any;
-  error?: string;
-}
+import { AuthResponse, OTPRequestResponse, OTPVerifyResponse, RegisterResponse } from '../types';
 
 /**
  * Request OTP for phone number
  */
 export const requestOTP = async (phone: string): Promise<OTPRequestResponse> => {
   try {
-    const { error } = await supabase.auth.signInWithOtp({
+    const { data, error } = await supabase.auth.signInWithOtp({
       phone,
+      options: {
+        shouldCreateUser: true,
+      },
     });
 
     if (error) {
+      console.error('Supabase OTP error:', error);
+      
+      // Handle specific Twilio error
+      if (error.message.includes('not a valid message-capable Twilio phone number')) {
+        return { 
+          success: false, 
+          error: 'SMS service is not properly configured. Please contact support or try email login instead.' 
+        };
+      }
+      
       return { success: false, error: handleSupabaseError(error).message };
     }
 
     return { success: true };
   } catch (error) {
+    console.error('Error in requestOTP:', error);
     return { success: false, error: 'Failed to send OTP. Please try again.' };
   }
 };
@@ -76,7 +62,7 @@ export const verifyOTP = async (phone: string, token: string): Promise<OTPVerify
 export const loginWithPassword = async (
   email: string,
   password: string
-): Promise<LoginResponse> => {
+): Promise<AuthResponse> => {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -84,11 +70,37 @@ export const loginWithPassword = async (
     });
 
     if (error) {
+      // Check for specific error cases
+      if (error.message.includes('Invalid login credentials')) {
+        // Try to sign up with the same email to check if user exists
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/login`,
+          },
+        });
+
+        // If we get a "User already registered" error, the user exists but password is wrong
+        if (signUpError?.message.includes('User already registered')) {
+          return { 
+            success: false, 
+            error: 'Incorrect password. Please try again.' 
+          };
+        }
+        
+        // If we get a different error or no error, the user doesn't exist
+        return { 
+          success: false, 
+          error: 'No account found with this email. Please register first.' 
+        };
+      }
       return { success: false, error: handleSupabaseError(error).message };
     }
 
     return { success: true, session: data.session };
   } catch (error) {
+    console.error('Login error:', error);
     return { success: false, error: 'Failed to login. Please try again.' };
   }
 };
