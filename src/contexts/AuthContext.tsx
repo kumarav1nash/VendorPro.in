@@ -10,43 +10,37 @@ import {
   registerUser,
   logout
 } from '../services/auth';
-
-interface User {
-  id: string;
-  email: string;
-  user_metadata: {
-    name: string;
-    phone?: string;
-  };
-}
+import { User, AuthResponse, OTPRequestResponse, OTPVerifyResponse, RegisterResponse } from '../types';
 
 interface AuthContextType {
   user: User | null;
   session: any | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  loginWithPassword: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithOTP: (phone: string) => Promise<{ success: boolean; error?: string }>;
-  verifyOTP: (phone: string, token: string) => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, userData: { name: string; phone?: string }) => Promise<{ success: boolean; error?: string }>;
+  loginWithPassword: (email: string, password: string) => Promise<AuthResponse>;
+  loginWithOTP: (phone: string) => Promise<OTPRequestResponse>;
+  verifyOTP: (phone: string, token: string) => Promise<OTPVerifyResponse>;
+  register: (email: string, password: string, userData: { name: string; phone?: string }) => Promise<RegisterResponse>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
+// Export the hook as a named export
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+// Export the provider as a named export
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -120,8 +114,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const handleLoginWithOTP = async (phone: string) => {
     try {
       const response = await requestOTP(phone);
-      return { success: response.success, error: response.error };
+      if (!response.success) {
+        return { success: false, error: response.error || 'Failed to send OTP' };
+      }
+      return { success: true };
     } catch (error) {
+      console.error('Error in handleLoginWithOTP:', error);
       return { success: false, error: 'Failed to send OTP. Please try again.' };
     }
   };
@@ -180,4 +178,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}; 
+} 

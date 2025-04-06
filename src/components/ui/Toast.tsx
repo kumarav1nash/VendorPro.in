@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ReactNode } from 'react';
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 
 interface ToastProps {
-  message: string;
+  message: string | ReactNode;
   variant?: ToastVariant;
   duration?: number;
   onClose: () => void;

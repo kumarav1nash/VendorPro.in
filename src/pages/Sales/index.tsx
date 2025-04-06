@@ -1,132 +1,112 @@
 import React, { useState } from 'react';
-
-interface Sale {
-  id: string;
-  date: string;
-  customer: string;
-  amount: number;
-  items: number;
-  status: 'completed' | 'pending' | 'cancelled';
-}
+import { Sale } from '../../types';
 
 const Sales: React.FC = () => {
   const [sales] = useState<Sale[]>([
     {
       id: '1',
+      shopId: '1',
+      shopName: 'Coffee Shop',
+      amount: 150.00,
       date: '2024-03-21',
-      customer: 'John Doe',
-      amount: 45.97,
-      items: 3,
       status: 'completed',
+      items: [
+        { id: '1', name: 'Premium Coffee', quantity: 2, price: 4.99 },
+        { id: '2', name: 'Organic Tea', quantity: 1, price: 3.99 },
+      ],
     },
     {
       id: '2',
+      shopId: '2',
+      shopName: 'Bakery Corner',
+      amount: 75.50,
       date: '2024-03-21',
-      customer: 'Jane Smith',
-      amount: 32.50,
-      items: 2,
-      status: 'completed',
-    },
-    {
-      id: '3',
-      date: '2024-03-20',
-      customer: 'Bob Johnson',
-      amount: 78.25,
-      items: 5,
       status: 'pending',
-    },
-    {
-      id: '4',
-      date: '2024-03-20',
-      customer: 'Alice Brown',
-      amount: 25.99,
-      items: 1,
-      status: 'cancelled',
+      items: [
+        { id: '3', name: 'Fresh Croissant', quantity: 3, price: 2.99 },
+        { id: '4', name: 'Chocolate Muffin', quantity: 2, price: 3.49 },
+      ],
     },
   ]);
 
-  const stats = {
-    totalSales: 182.71,
-    averageOrderValue: 45.68,
-    totalOrders: 4,
-    completionRate: 75,
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Sales Dashboard</h1>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-medium text-gray-500">Total Sales</h3>
-          <p className="mt-2 text-3xl font-bold text-gray-900">
-            ${stats.totalSales.toFixed(2)}
-          </p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-medium text-gray-500">
-            Average Order Value
-          </h3>
-          <p className="mt-2 text-3xl font-bold text-gray-900">
-            ${stats.averageOrderValue.toFixed(2)}
-          </p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
-          <p className="mt-2 text-3xl font-bold text-gray-900">
-            {stats.totalOrders}
-          </p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-medium text-gray-500">Completion Rate</h3>
-          <p className="mt-2 text-3xl font-bold text-gray-900">
-            {stats.completionRate}%
-          </p>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Sales</h1>
+        <div className="flex space-x-4">
+          <input
+            type="text"
+            placeholder="Search sales..."
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          />
+          <button className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
+            New Sale
+          </button>
         </div>
       </div>
 
-      {/* Recent Sales */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <h2 className="text-lg font-medium text-gray-900">Recent Sales</h2>
-        </div>
-        <div className="border-t border-gray-200">
-          <ul className="divide-y divide-gray-200">
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Sale ID
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Shop
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Amount
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
             {sales.map((sale) => (
-              <li key={sale.id} className="px-4 py-4 sm:px-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-900">
-                        {sale.customer}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {sale.date} • {sale.items} items
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <span className="text-lg font-medium text-gray-900">
-                      ${sale.amount.toFixed(2)}
-                    </span>
-                    <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        sale.status === 'completed'
-                          ? 'bg-green-100 text-green-800'
-                          : sale.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {sale.status}
-                    </span>
-                  </div>
-                </div>
-              </li>
+              <tr key={sale.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {sale.id}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {sale.shopName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  ${sale.amount.toFixed(2)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {sale.date}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span
+                    className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      sale.status === 'completed'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {sale.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <button className="text-primary-600 hover:text-primary-900 mr-3">
+                    View
+                  </button>
+                  <button className="text-red-600 hover:text-red-900">
+                    Delete
+                  </button>
+                </td>
+              </tr>
             ))}
-          </ul>
-        </div>
+          </tbody>
+        </table>
       </div>
     </div>
   );

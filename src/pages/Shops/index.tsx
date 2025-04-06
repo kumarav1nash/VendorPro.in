@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-
-interface Shop {
-  id: string;
-  name: string;
-  location: string;
-  status: 'active' | 'inactive';
-  lastUpdated: string;
-}
+import { Shop } from '../../types';
 
 const Shops: React.FC = () => {
   const [shops] = useState<Shop[]>([

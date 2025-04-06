@@ -98,16 +98,26 @@ export const formatPhoneNumber = (phone: string): string => {
   // Remove all non-digit characters
   const digits = phone.replace(/\D/g, '');
   
-  // If the number starts with 91, add + prefix
+  // If the number starts with 91, remove it
   if (digits.startsWith('91')) {
-    return `+${digits}`;
+    return `+91${digits.slice(2)}`;
   }
   
-  // If the number is 10 digits, add +91 prefix
+  // If the number starts with 0, remove it
+  if (digits.startsWith('0')) {
+    return `+91${digits.slice(1)}`;
+  }
+  
+  // If the number is 10 digits, add +91
   if (digits.length === 10) {
     return `+91${digits}`;
   }
   
-  // Return as is if it doesn't match any format
+  // If the number is already in the correct format, return it
+  if (digits.length === 12 && digits.startsWith('91')) {
+    return `+${digits}`;
+  }
+  
+  // If none of the above, return the original number
   return phone;
 }; 
