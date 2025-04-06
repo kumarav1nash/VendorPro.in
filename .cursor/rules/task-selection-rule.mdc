@@ -1,0 +1,77 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Task Selection Automation Rule
+
+## Rule Configuration
+
+```json
+{
+  "name": "task-selection-automation",
+  "description": "Automates task selection and status updates",
+  "triggers": {
+    "file_changes": {
+      "patterns": ["doc/todo/**/*.md"]
+    },
+    "task_completion": {
+      "status": "[x]"
+    }
+  },
+  "actions": [
+    {
+      "type": "task_selection",
+      "priority_order": ["P0", "P1", "P2", "P3"],
+      "status_update": {
+        "from": "[ ]",
+        "to": "[~]",
+        "metadata": {
+          "start_date": "current_date",
+          "assigned_to": "current_user"
+        }
+      }
+    },
+    {
+      "type": "task_update",
+      "update_template": "```markdown\n[~] TASK-XXX: Task description\n    Started: YYYY-MM-DD\n    Assigned to: <user-name>\n```"
+    }
+  ],
+  "conditions": {
+    "task_exists": true,
+    "task_available": true,
+    "no_blockers": true
+  }
+}
+```
+
+## Task Status Flow
+
+1. TODO `[ ]` -> Not started
+2. IN_PROGRESS `[~]` -> Being worked on
+3. REVIEW `[r]` -> Completed and awaiting review
+4. DONE `[x]` -> Completed and accepted
+
+## Task Selection Criteria
+
+1. Priority order: P0 > P1 > P2 > P3
+2. No blockers or dependencies
+3. Required skills match
+4. Estimated time within sprint capacity
+
+## Task Update Format
+
+```markdown
+[~] TASK-XXX: Task description
+    Started: YYYY-MM-DD
+    Assigned to: <user-name>
+    Estimated hours: XX
+    Dependencies: TASK-YYY, TASK-ZZZ
+```
+
+## Error Handling
+
+- Log selection errors
+- Notify if no tasks available
+- Report blockers
+- Suggest alternative tasks 

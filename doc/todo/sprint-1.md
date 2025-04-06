@@ -11,7 +11,7 @@
 ### Project Setup & Infrastructure
 
 #### TASK-001: Initialize Project Repository and Structure
-- [ ] Priority: P0
+- [~] Priority: P0
 - Description: Set up the GitHub repository with proper branching strategy and create the initial project structure.
 - Acceptance Criteria:
   - GitHub repository is created with main, develop, and feature branches
@@ -20,7 +20,9 @@
   - ESLint and Prettier configured
   - Git hooks set up for pre-commit linting
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-03-21
+- Status: In Progress - Basic project structure and configuration files created
 
 #### TASK-002: Set up React Frontend with Routing
 - [ ] Priority: P0

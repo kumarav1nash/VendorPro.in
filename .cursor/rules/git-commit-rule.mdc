@@ -1,14 +1,19 @@
-# Task Completion Automation Rule
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Git Commit Automation Rule
 
 ## Rule Configuration
 
 ```json
 {
-  "name": "task-completion",
-  "description": "Automates task completion and commit process",
+  "name": "git-commit-automation",
+  "description": "Automates git commit process when tasks are completed",
   "triggers": {
     "file_changes": {
-      "patterns": ["doc/todo/**/*.md"]
+      "patterns": ["src/**/*", "tests/**/*"]
     }
   },
   "actions": [
@@ -29,7 +34,8 @@
   "conditions": {
     "task_status": "[x]",
     "has_tests": true,
-    "coverage_threshold": 80
+    "coverage_threshold": 80,
+    "files_changed": true
   }
 }
 ```
@@ -44,21 +50,13 @@
 - `style`: Code style changes
 - `chore`: Maintenance tasks
 
-## Task Status Format
-
-```markdown
-[x] TASK-XXX: Task description
-    Completed: YYYY-MM-DD
-    Commit: <commit-hash>
-    Author: <author-name>
-```
-
 ## Validation Rules
 
 1. Tests must pass
 2. Code coverage ≥ 80%
 3. Commit message follows format
 4. No sensitive data in changes
+5. Files have been modified
 
 ## Error Handling
 
