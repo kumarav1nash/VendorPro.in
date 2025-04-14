@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './hooks/useAuth';
 import { MainLayout } from './components/layout/MainLayout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { ErrorBoundary } from './components/error/ErrorBoundary';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ShopListPage } from './pages/shop/ShopListPage';
 import { ShopDetailsPage } from './pages/shop/ShopDetailsPage';
@@ -17,86 +18,88 @@ import { SalesmanListPage } from './pages/salesman/SalesmanListPage';
 
 export const App = () => {
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          {/* Auth Routes */}
-          <Route path="/auth/login" element={<LoginPage />} />
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <Routes>
+            {/* Auth Routes */}
+            <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <MainLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            
-            {/* Shop Routes */}
-            <Route path="dashboard" element={<ShopDashboardPage />} />
-            <Route path="shops" element={<ShopListPage />} />
-            <Route path="shops/:shopId" element={<ShopDetailsPage />} />
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <MainLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              
+              {/* Shop Routes */}
+              <Route path="dashboard" element={<ShopDashboardPage />} />
+              <Route path="shops" element={<ShopListPage />} />
+              <Route path="shops/:shopId" element={<ShopDetailsPage />} />
 
-            {/* Product Routes - Only accessible by shop owners */}
-            <Route
-              path="products"
-              element={
-                <ProtectedRoute roles={['shop_owner']}>
-                  <ProductListPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="products/add"
-              element={
-                <ProtectedRoute roles={['shop_owner']}>
-                  <ProductAddPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="products/:productId"
-              element={
-                <ProtectedRoute roles={['shop_owner']}>
-                  <ProductDetailsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="products/:productId/edit"
-              element={
-                <ProtectedRoute roles={['shop_owner']}>
-                  <ProductEditPage />
-                </ProtectedRoute>
-              }
-            />
+              {/* Product Routes - Only accessible by shop owners */}
+              <Route
+                path="products"
+                element={
+                  <ProtectedRoute roles={['shop_owner']}>
+                    <ProductListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="products/add"
+                element={
+                  <ProtectedRoute roles={['shop_owner']}>
+                    <ProductAddPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="products/:productId"
+                element={
+                  <ProtectedRoute roles={['shop_owner']}>
+                    <ProductDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="products/:productId/edit"
+                element={
+                  <ProtectedRoute roles={['shop_owner']}>
+                    <ProductEditPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Sale Routes */}
-            <Route path="sales" element={<SaleListPage />} />
+              {/* Sale Routes */}
+              <Route path="sales" element={<SaleListPage />} />
 
-            {/* Salesman Routes */}
-            <Route
-              path="salesmen/add"
-              element={
-                <ProtectedRoute roles={['shop_owner']}>
-                  <SalesmanAddPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="salesmen"
-              element={
-                <ProtectedRoute roles={['shop_owner']}>
-                  <SalesmanListPage />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
-        </Routes>
-      </AuthProvider>
-    </Router>
+              {/* Salesman Routes */}
+              <Route
+                path="salesmen/add"
+                element={
+                  <ProtectedRoute roles={['shop_owner']}>
+                    <SalesmanAddPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="salesmen"
+                element={
+                  <ProtectedRoute roles={['shop_owner']}>
+                    <SalesmanListPage />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   );
 };
