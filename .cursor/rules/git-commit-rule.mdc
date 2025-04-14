@@ -1,0 +1,66 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Git Commit Automation Rule
+
+## Rule Configuration
+
+```json
+{
+  "name": "git-commit-automation",
+  "description": "Automates git commit process when tasks are completed",
+  "triggers": {
+    "file_changes": {
+      "patterns": ["src/**/*", "tests/**/*"]
+    }
+  },
+  "actions": [
+    {
+      "type": "commit",
+      "message_template": "[TASK-XXX] Type: Brief description\n\nDetails about changes\n\nCloses TASK-XXX",
+      "variables": {
+        "TASK-XXX": "extract_task_id",
+        "Type": "determine_commit_type",
+        "description": "generate_description"
+      }
+    },
+    {
+      "type": "push",
+      "branch": "current_branch"
+    }
+  ],
+  "conditions": {
+    "task_status": "[x]",
+    "has_tests": true,
+    "coverage_threshold": 80,
+    "files_changed": true
+  }
+}
+```
+
+## Commit Types
+
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `test`: Test updates
+- `refactor`: Code refactoring
+- `style`: Code style changes
+- `chore`: Maintenance tasks
+
+## Validation Rules
+
+1. Tests must pass
+2. Code coverage ≥ 80%
+3. Commit message follows format
+4. No sensitive data in changes
+5. Files have been modified
+
+## Error Handling
+
+- Log errors
+- Revert task status
+- Notify developer
+- Provide resolution steps 
