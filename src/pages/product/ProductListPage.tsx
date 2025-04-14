@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { dummyDataService } from '../../services/dummyData';
 import { DummyProduct } from '../../types/dummy';
@@ -7,6 +8,7 @@ import { Table } from '../../components/ui/Table';
 
 export const ProductListPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<DummyProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +34,10 @@ export const ProductListPage = () => {
     loadProducts();
   }, [user]);
 
+  const handleAddProduct = () => {
+    navigate('/products/add');
+  };
+
   if (loading) return <div>Loading products...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -39,7 +45,7 @@ export const ProductListPage = () => {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Products</h1>
-        <Button>Add Product</Button>
+        <Button onClick={handleAddProduct}>Add Product</Button>
       </div>
 
       <Table

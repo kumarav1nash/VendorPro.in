@@ -7,6 +7,7 @@ import { ShopListPage } from './pages/shop/ShopListPage';
 import { ShopDetailsPage } from './pages/shop/ShopDetailsPage';
 import { ShopDashboardPage } from './pages/shop/ShopDashboardPage';
 import { ProductListPage } from './pages/product/ProductListPage';
+import { ProductAddPage } from './pages/product/ProductAddPage';
 import { SaleListPage } from './pages/sale/SaleListPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
 
@@ -41,6 +42,14 @@ export const App = () => {
               element={
                 <ProtectedRoute roles={['shop_owner']}>
                   <ProductListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="products/add"
+              element={
+                <ProtectedRoute roles={['shop_owner']}>
+                  <ProductAddPage />
                 </ProtectedRoute>
               }
             />
