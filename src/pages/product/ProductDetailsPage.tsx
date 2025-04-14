@@ -99,91 +99,56 @@ export const ProductDetailsPage = () => {
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">{product.name}</h1>
             <p className="mt-1 text-sm text-gray-500">
-              Product ID: {product.id}
+              Product Details
             </p>
           </div>
-          <div className="flex gap-3">
-            <Button onClick={handleEdit} variant="primary">
-              Edit Product
-            </Button>
-            <Button onClick={handleDelete} variant="danger">
-              Delete Product
-            </Button>
-            <Button 
-              onClick={() => navigate('/products')} 
-              variant="secondary"
-            >
+          <div className="flex gap-2">
+            <Button onClick={handleEdit}>Edit Product</Button>
+            <Button variant="outline" onClick={() => navigate('/products')}>
               Back to Products
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Product Image */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-medium text-gray-900">Product Image</h2>
-            </CardHeader>
-            <CardBody>
-              <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
+        <Card>
+          <CardBody>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {product.image && (
+                <div className="relative aspect-square">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+              )}
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-lg font-medium text-gray-900">Description</h2>
+                  <p className="mt-1 text-gray-600">{product.description}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h2 className="text-lg font-medium text-gray-900">Base Price</h2>
+                    <p className="mt-1 text-gray-600">{formatCurrency(product.base_price)}</p>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-medium text-gray-900">Selling Price</h2>
+                    <p className="mt-1 text-gray-600">{formatCurrency(product.selling_price)}</p>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-medium text-gray-900">Quantity</h2>
+                    <p className="mt-1 text-gray-600">{product.quantity}</p>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-medium text-gray-900">Status</h2>
+                    <p className="mt-1 text-gray-600 capitalize">{product.status}</p>
+                  </div>
                 </div>
               </div>
-            </CardBody>
-          </Card>
-
-          {/* Product Details */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-lg font-medium text-gray-900">Product Details</h2>
-            </CardHeader>
-            <CardBody>
-              <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Description</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{product.description}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Base Price</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{formatCurrency(product.base_price)}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Selling Price</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{formatCurrency(product.selling_price)}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Quantity</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{product.quantity}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Status</dt>
-                  <dd className="mt-1">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {product.status}
-                    </span>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Created At</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
-                    {new Date(product.created_at).toLocaleDateString()}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Last Updated</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
-                    {new Date(product.updated_at).toLocaleDateString()}
-                  </dd>
-                </div>
-              </dl>
-            </CardBody>
-          </Card>
-        </div>
+            </div>
+          </CardBody>
+        </Card>
       </div>
     </div>
   );

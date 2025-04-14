@@ -19,13 +19,14 @@ interface FormErrors {
 }
 
 export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFormProps) => {
-  const [formData, setFormData] = useState<Omit<DummyProduct, 'id' | 'shop_id' | 'created_at' | 'updated_at'>>({
+  const [formData, setFormData] = useState<Omit<DummyProduct, 'id' | 'shop_id' | 'created_at' | 'updated_at'> & { image?: File }>({
     name: product?.name || '',
     description: product?.description || '',
     base_price: product?.base_price || 0,
     selling_price: product?.selling_price || 0,
     quantity: product?.quantity || 0,
     status: product?.status || 'active',
+    image: undefined,
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -79,6 +80,15 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
       newErrors.quantity = 'Quantity cannot be negative';
     }
 
+    if (formData.image) {
+      if (formData.image.size > 10 * 1024 * 1024) { // 10MB limit
+        newErrors.image = 'Image size must be less than 10MB';
+      }
+      if (!['image/jpeg', 'image/png', 'image/gif'].includes(formData.image.type)) {
+        newErrors.image = 'Image must be JPEG, PNG, or GIF';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -95,17 +105,30 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
     setLoading(true);
 
     try {
+      const formDataToSubmit = new FormData();
+      
+      // Add all form fields
+      formDataToSubmit.append('shop_id', shopId);
+      formDataToSubmit.append('name', formData.name);
+      formDataToSubmit.append('description', formData.description);
+      formDataToSubmit.append('base_price', formData.base_price.toString());
+      formDataToSubmit.append('selling_price', formData.selling_price.toString());
+      formDataToSubmit.append('quantity', formData.quantity.toString());
+      formDataToSubmit.append('status', formData.status);
+      
+      // Add image if present
+      if (formData.image) {
+        formDataToSubmit.append('image', formData.image);
+      }
+
       if (product) {
-        const response = await dummyDataService.updateProduct(product.id, formData);
+        const response = await dummyDataService.updateProduct(product.id, formDataToSubmit);
         if (!response.success) {
           throw new Error('Failed to update product');
         }
         setSuccess('Product updated successfully');
       } else {
-        const response = await dummyDataService.createProduct({
-          ...formData,
-          shop_id: shopId,
-        });
+        const response = await dummyDataService.createProduct(formDataToSubmit);
         if (!response.success) {
           throw new Error('Failed to create product');
         }
@@ -135,10 +158,21 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type and size
+      if (file.size > 10 * 1024 * 1024) {
+        setErrors(prev => ({ ...prev, image: 'Image size must be less than 10MB' }));
+        return;
+      }
+      if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+        setErrors(prev => ({ ...prev, image: 'Image must be JPEG, PNG, or GIF' }));
+        return;
+      }
+
       // Create a preview URL for the image
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+        setFormData(prev => ({ ...prev, image: file }));
       };
       reader.readAsDataURL(file);
     }
@@ -156,8 +190,19 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {loading && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg shadow-xl">
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              <span className="ml-3 text-gray-700">Saving changes...</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4">
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -165,14 +210,15 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-700">{error}</p>
+              <h3 className="text-sm font-medium text-red-800">Error</h3>
+              <p className="mt-1 text-sm text-red-700">{error}</p>
             </div>
           </div>
         </div>
       )}
 
       {success && (
-        <div className="bg-green-50 border-l-4 border-green-400 p-4">
+        <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-md">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -180,7 +226,8 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-green-700">{success}</p>
+              <h3 className="text-sm font-medium text-green-800">Success</h3>
+              <p className="mt-1 text-sm text-green-700">{success}</p>
             </div>
           </div>
         </div>
@@ -287,33 +334,19 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
           {errors.quantity && <p className="mt-1 text-sm text-red-600">{errors.quantity}</p>}
         </div>
 
-        <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-            Status
-          </label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </div>
-
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-gray-700">Product Image</label>
+          <label htmlFor="image" className="block text-sm font-medium text-gray-700">
+            Product Image
+          </label>
           <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
             <div className="space-y-1 text-center">
               {imagePreview ? (
                 <div className="relative">
-                  <img src={imagePreview} alt="Preview" className="max-h-48 mx-auto" />
+                  <img src={imagePreview} alt="Preview" className="mx-auto h-32 w-32 object-cover rounded-md" />
                   <button
                     type="button"
                     onClick={() => setImagePreview(null)}
-                    className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                    className="absolute top-0 right-0 -mt-2 -mr-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600 focus:outline-none"
                   >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -338,13 +371,13 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
                   </svg>
                   <div className="flex text-sm text-gray-600">
                     <label
-                      htmlFor="file-upload"
+                      htmlFor="image-upload"
                       className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
                     >
                       <span>Upload a file</span>
                       <input
-                        id="file-upload"
-                        name="file-upload"
+                        id="image-upload"
+                        name="image"
                         type="file"
                         className="sr-only"
                         accept="image/*"
@@ -358,25 +391,50 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
               )}
             </div>
           </div>
+          {errors.image && <p className="mt-1 text-sm text-red-600">{errors.image}</p>}
+        </div>
+
+        <div className="sm:col-span-2">
+          <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+            Status
+          </label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          >
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
         </div>
       </div>
 
       <div className="flex justify-end space-x-3">
-        {onCancel && (
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Cancel
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleCancel}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Cancel
+        </button>
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? 'Saving...' : product ? 'Update Product' : 'Create Product'}
+          {loading ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Saving...
+            </>
+          ) : (
+            'Save Changes'
+          )}
         </button>
       </div>
     </form>

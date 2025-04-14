@@ -90,7 +90,7 @@
 - Dependencies: TASK-014
 
 #### TASK-016: Develop Product Detail View UI
-- [~] Priority: P0
+- [x] Priority: P0
 - Description: Create the detailed view for individual products using dummy data.
 - Acceptance Criteria:
   - Display all product details
@@ -103,10 +103,11 @@
 - Estimated Hours: 4
 - Assigned To: Current User
 - Started: 2024-04-14
+- Completed: 2024-04-14
 - Dependencies: TASK-015
 
 #### TASK-017: Implement Product Editing Form UI
-- [ ] Priority: P0
+- [~] Priority: P0
 - Description: Create the UI for editing product details using dummy data.
 - Acceptance Criteria:
   - Pre-populated form with existing product data
@@ -115,7 +116,9 @@
   - Success/error notifications
   - Cancel button to return to details page
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Dependencies: TASK-016
 
 #### TASK-018: Add Product Deletion UI with Confirmation
 - [ ] Priority: P1

@@ -133,9 +133,33 @@ class DummyDataService {
     return { success: true, data: products };
   }
 
-  async createProduct(product: Omit<DummyProduct, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceResponse<DummyProduct>> {
+  async createProduct(formData: FormData): Promise<ServiceResponse<DummyProduct>> {
+    let imageBase64: string | undefined;
+    const imageFile = formData.get('image') as File;
+    
+    if (imageFile) {
+      imageBase64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(imageFile);
+      });
+    }
+
+    const productData: Omit<DummyProduct, 'id' | 'created_at' | 'updated_at'> = {
+      shop_id: formData.get('shop_id') as string,
+      name: formData.get('name') as string,
+      description: formData.get('description') as string,
+      base_price: Number(formData.get('base_price')),
+      selling_price: Number(formData.get('selling_price')),
+      quantity: Number(formData.get('quantity')),
+      status: formData.get('status') as 'active' | 'inactive',
+      image: imageBase64,
+    };
+
     const newProduct: DummyProduct = {
-      ...product,
+      ...productData,
       id: (dummyProducts.length + 1).toString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -144,11 +168,34 @@ class DummyDataService {
     return { success: true, data: newProduct };
   }
 
-  async updateProduct(id: string, updates: Partial<DummyProduct>): Promise<ServiceResponse<DummyProduct>> {
+  async updateProduct(id: string, formData: FormData): Promise<ServiceResponse<DummyProduct>> {
     const index = dummyProducts.findIndex(p => p.id === id);
     if (index === -1) {
       return { success: false, error: 'Product not found' };
     }
+    
+    let imageBase64: string | undefined;
+    const imageFile = formData.get('image') as File;
+    
+    if (imageFile) {
+      imageBase64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(imageFile);
+      });
+    }
+    
+    const updates: Partial<DummyProduct> = {
+      name: formData.get('name') as string,
+      description: formData.get('description') as string,
+      base_price: Number(formData.get('base_price')),
+      selling_price: Number(formData.get('selling_price')),
+      quantity: Number(formData.get('quantity')),
+      status: formData.get('status') as 'active' | 'inactive',
+      image: imageBase64,
+    };
     
     dummyProducts[index] = {
       ...dummyProducts[index],
