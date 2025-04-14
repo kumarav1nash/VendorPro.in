@@ -197,8 +197,14 @@ export const SaleListPage = () => {
       setLoading(true);
       setError(null);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Update sale status in storage
+      const updateResponse = await dummyDataService.updateSale(saleId, { status: 'approved' });
+      if (!updateResponse.success) {
+        throw new Error(updateResponse.error || 'Failed to update sale');
+      }
+
+      // Calculate commission for the approved sale
+      await dummyDataService.calculateCommission(saleId);
       
       // Update local state
       setSales(prev => prev.map(sale => {
@@ -248,8 +254,23 @@ export const SaleListPage = () => {
       setLoading(true);
       setError(null);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Update all selected sales in storage
+      const updatePromises = selectedSales.map(saleId => 
+        dummyDataService.updateSale(saleId, { status: 'approved' })
+      );
+      
+      const updateResults = await Promise.all(updatePromises);
+      const failedUpdates = updateResults.filter(result => !result.success);
+      
+      if (failedUpdates.length > 0) {
+        throw new Error('Failed to update some sales');
+      }
+
+      // Calculate commissions for all approved sales
+      const commissionPromises = selectedSales.map(saleId => 
+        dummyDataService.calculateCommission(saleId)
+      );
+      await Promise.all(commissionPromises);
       
       // Update local state
       setSales(prev => prev.map(sale => {
@@ -259,8 +280,8 @@ export const SaleListPage = () => {
         return sale;
       }));
       
-      setSuccess(`${selectedSales.length} sales approved successfully`);
       setSelectedSales([]);
+      setSuccess(`${selectedSales.length} sales approved successfully`);
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError('Failed to approve sales');

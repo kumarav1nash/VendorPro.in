@@ -96,7 +96,7 @@
 ### Commission Management UI
 
 #### TASK-027: Create Commission Structure Setup UI
-- [~] Priority: P0
+- [x] Priority: P0
 - Description: Implement the interface for shop owners to define commission structures using dummy data.
 - Acceptance Criteria:
   - Form for creating commission rules
@@ -111,7 +111,7 @@
 - Dependencies: None
 
 #### TASK-028: Implement Commission Calculation UI
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Develop the UI to display commission calculations based on defined structures using dummy data.
 - Acceptance Criteria:
   - Display calculation results for both percentage and fixed commissions

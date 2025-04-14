@@ -121,6 +121,15 @@ const dummySaleItems: DummySaleItem[] = [
   },
 ];
 
+const dummyCommissions = [
+  {
+    sale_id: '1',
+    amount: 30, // 5% of 600
+    rate: 5,
+    status: 'pending'
+  }
+];
+
 const dummyCommissionRules: DummyCommissionRule[] = [
   {
     id: '1',
@@ -159,6 +168,96 @@ const dummyCommissionRules: DummyCommissionRule[] = [
 ];
 
 class DummyDataService {
+  private storageService = storageService;
+
+  constructor() {
+    this.initializeDummyData();
+  }
+
+  private initializeDummyData() {
+    try {
+      // Check if storage is already initialized by checking users
+      const existingUsers = storageService.getUsers();
+      if (!existingUsers || existingUsers.length === 0) {
+        // Initialize all data from scratch
+        
+        // Initialize users
+        dummyUsers.forEach(user => {
+          storageService.createUser({
+            ...user,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        });
+
+        // Initialize shops
+        dummyShops.forEach(shop => {
+          storageService.createShop({
+            ...shop,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        });
+
+        // Initialize products
+        dummyProducts.forEach(product => {
+          storageService.createProduct({
+            ...product,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        });
+
+        // Initialize sales
+        dummySales.forEach(sale => {
+          storageService.createSale({
+            ...sale,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        });
+
+        // Initialize sale items
+        dummySaleItems.forEach(item => {
+          storageService.createSaleItem({
+            ...item,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        });
+
+        // Initialize commissions
+        const commissions = [
+          {
+            sale_id: '1',
+            amount: 30, // 5% of 600
+            rate: 5,
+            status: 'pending'
+          }
+        ];
+
+        commissions.forEach(commission => {
+          storageService.createCommission(commission);
+        });
+
+        // Initialize commission rules
+        dummyCommissionRules.forEach(rule => {
+          storageService.createCommissionRule({
+            ...rule,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        });
+
+        console.log('Dummy data initialized successfully');
+      } else {
+        console.log('Data already exists, skipping initialization');
+      }
+    } catch (error) {
+      console.error('Error initializing dummy data:', error);
+    }
+  }
+
   // User methods
   async getUser(id: string): Promise<ServiceResponse<DummyUser>> {
     const user = storageService.getUser(id);
@@ -183,8 +282,13 @@ class DummyDataService {
       : { success: false, error: 'Shop not found' };
   }
 
-  async createShop(shop: Omit<DummyShop, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceResponse<DummyShop>> {
-    const newShop = storageService.createShop(shop);
+  async createShop(shop: Omit<DummyShop, 'id'>): Promise<ServiceResponse<DummyShop>> {
+    const shopWithTimestamps = {
+      ...shop,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    const newShop = storageService.createShop(shopWithTimestamps);
     return { success: true, data: newShop };
   }
 
@@ -207,8 +311,13 @@ class DummyDataService {
       : { success: false, error: 'Product not found' };
   }
 
-  async createProduct(product: Omit<DummyProduct, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceResponse<DummyProduct>> {
-    const newProduct = storageService.createProduct(product);
+  async createProduct(product: Omit<DummyProduct, 'id'>): Promise<ServiceResponse<DummyProduct>> {
+    const productWithTimestamps = {
+      ...product,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    const newProduct = storageService.createProduct(productWithTimestamps);
     return { success: true, data: newProduct };
   }
 
@@ -217,6 +326,15 @@ class DummyDataService {
     return updatedProduct 
       ? { success: true, data: updatedProduct }
       : { success: false, error: 'Product not found' };
+  }
+
+  async deleteProduct(id: string): Promise<ServiceResponse<void>> {
+    try {
+      storageService.deleteProduct(id);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Failed to delete product' };
+    }
   }
 
   // Sale methods
@@ -231,8 +349,13 @@ class DummyDataService {
       : { success: false, error: 'Sale not found' };
   }
 
-  async createSale(sale: Omit<DummySale, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceResponse<DummySale>> {
-    const newSale = storageService.createSale(sale);
+  async createSale(sale: Omit<DummySale, 'id'>): Promise<ServiceResponse<DummySale>> {
+    const saleWithTimestamps = {
+      ...sale,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    const newSale = storageService.createSale(saleWithTimestamps);
     return { success: true, data: newSale };
   }
 
@@ -248,62 +371,63 @@ class DummyDataService {
     return { success: true, data: storageService.getSaleItems(saleId) };
   }
 
-  async createSaleItem(item: Omit<DummySaleItem, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceResponse<DummySaleItem>> {
-    const newItem = storageService.createSaleItem(item);
+  async createSaleItem(item: Omit<DummySaleItem, 'id'>): Promise<ServiceResponse<DummySaleItem>> {
+    const itemWithTimestamps = {
+      ...item,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    const newItem = storageService.createSaleItem(itemWithTimestamps);
     return { success: true, data: newItem };
   }
 
   // Commission Rule Methods
-  async getCommissionRules(shopId?: string): Promise<DummyCommissionRule[]> {
+  async getCommissionRules(shopId?: string): Promise<ServiceResponse<DummyCommissionRule[]>> {
     try {
-      let rules = [...dummyCommissionRules];
-      
-      if (shopId) {
-        rules = rules.filter(rule => rule.shop_id === shopId);
+      const rules = storageService.getCommissionRules();
+      if (!rules || rules.length === 0) {
+        return { success: false, error: 'No commission rules found' };
       }
-      
-      return rules;
+
+      if (shopId) {
+        const shopRules = rules.filter(rule => rule.shop_id === shopId);
+        return { success: true, data: shopRules };
+      }
+
+      return { success: true, data: rules };
     } catch (error) {
       console.error('Error getting commission rules:', error);
-      throw new Error('Failed to get commission rules');
+      return { success: false, error: 'Failed to get commission rules' };
     }
   }
 
-  async createCommissionRule(rule: Omit<DummyCommissionRule, 'id' | 'created_at' | 'updated_at'>): Promise<DummyCommissionRule> {
+  async createCommissionRule(rule: Omit<DummyCommissionRule, 'id'>): Promise<ServiceResponse<DummyCommissionRule>> {
     try {
-      const newRule: DummyCommissionRule = {
+      const newRule = storageService.createCommissionRule({
         ...rule,
-        id: (dummyCommissionRules.length + 1).toString(),
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      
-      dummyCommissionRules.push(newRule);
-      return newRule;
+        updated_at: new Date().toISOString()
+      });
+      return { success: true, data: newRule };
     } catch (error) {
       console.error('Error creating commission rule:', error);
-      throw new Error('Failed to create commission rule');
+      return { success: false, error: 'Failed to create commission rule' };
     }
   }
 
-  async updateCommissionRule(id: string, rule: Partial<DummyCommissionRule>): Promise<DummyCommissionRule> {
+  async updateCommissionRule(id: string, updates: Partial<DummyCommissionRule>): Promise<ServiceResponse<DummyCommissionRule>> {
     try {
-      const index = dummyCommissionRules.findIndex(r => r.id === id);
-      if (index === -1) {
-        throw new Error('Commission rule not found');
+      const updatedRule = storageService.updateCommissionRule(id, {
+        ...updates,
+        updated_at: new Date().toISOString()
+      });
+      if (!updatedRule) {
+        return { success: false, error: 'Commission rule not found' };
       }
-      
-      const updatedRule = {
-        ...dummyCommissionRules[index],
-        ...rule,
-        updated_at: new Date().toISOString(),
-      };
-      
-      dummyCommissionRules[index] = updatedRule;
-      return updatedRule;
+      return { success: true, data: updatedRule };
     } catch (error) {
       console.error('Error updating commission rule:', error);
-      throw new Error('Failed to update commission rule');
+      return { success: false, error: 'Failed to update commission rule' };
     }
   }
 
@@ -318,6 +442,77 @@ class DummyDataService {
     } catch (error) {
       console.error('Error deleting commission rule:', error);
       throw new Error('Failed to delete commission rule');
+    }
+  }
+
+  // Salesman methods
+  async getSalesmen(): Promise<ServiceResponse<DummyUser[]>> {
+    const salesmen = storageService.getUsers().filter(user => user.role === 'salesman');
+    return { success: true, data: salesmen };
+  }
+
+  async calculateCommission(saleId: string): Promise<ServiceResponse<{ amount: number; rate: number; status: string }>> {
+    try {
+      const sale = storageService.getSale(saleId);
+      if (!sale) {
+        return { success: false, error: 'Sale not found' };
+      }
+
+      const shop = storageService.getShop(sale.shop_id);
+      if (!shop) {
+        return { success: false, error: 'Shop not found' };
+      }
+
+      // Get commission rules for the shop
+      const rulesResponse = await this.getCommissionRules(sale.shop_id);
+      if (!rulesResponse.success || !rulesResponse.data || rulesResponse.data.length === 0) {
+        return { success: false, error: 'No commission rules found for this shop' };
+      }
+
+      const rules = rulesResponse.data;
+
+      // Find the applicable rule based on sale amount
+      const applicableRule = rules.find(rule => 
+        sale.total_amount >= (rule.min_amount || 0) && 
+        sale.total_amount <= (rule.max_amount || Infinity)
+      );
+
+      if (!applicableRule) {
+        return { success: false, error: 'No applicable commission rule found for this sale amount' };
+      }
+
+      // Calculate commission
+      const commissionAmount = (sale.total_amount * (applicableRule.value || 0)) / 100;
+      
+      // Check if commission already exists
+      const existingCommission = storageService.getCommission(saleId);
+      const status = existingCommission ? existingCommission.status : 'pending';
+      
+      // Create or update commission record
+      const commission = {
+        sale_id: saleId,
+        amount: commissionAmount,
+        rate: applicableRule.value || 0,
+        status: status
+      };
+
+      if (existingCommission) {
+        storageService.updateCommission(saleId, commission);
+      } else {
+        storageService.createCommission(commission);
+      }
+
+      return {
+        success: true,
+        data: {
+          amount: commissionAmount,
+          rate: applicableRule.value || 0,
+          status: status
+        }
+      };
+    } catch (error) {
+      console.error('Error calculating commission:', error);
+      return { success: false, error: 'Failed to calculate commission' };
     }
   }
 }
