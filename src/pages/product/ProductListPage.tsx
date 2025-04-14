@@ -6,6 +6,7 @@ import { DummyProduct } from '../../types/dummyData';
 import { formatCurrency } from '../../utils/format';
 import { Button } from '../../components/ui/Button';
 import { Table } from '../../components/ui/Table';
+import { ConfirmationDialog } from '../../components/ui/ConfirmationDialog';
 import Input from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 
@@ -15,6 +16,9 @@ export const ProductListPage = () => {
   const [products, setProducts] = useState<DummyProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<DummyProduct | null>(null);
   
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,14 +58,28 @@ export const ProductListPage = () => {
     navigate(`/products/${productId}/edit`);
   };
 
-  const handleDeleteProduct = async (productId: string) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        // For now, just remove from local state since we don't have deleteProduct in dummyDataService
-        setProducts(products.filter(p => p.id !== productId));
-      } catch (err) {
-        setError('An error occurred while deleting the product');
+  const handleDeleteClick = (product: DummyProduct) => {
+    setProductToDelete(product);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!productToDelete) return;
+
+    try {
+      const response = await dummyDataService.deleteProduct(productToDelete.id);
+      if (response.success) {
+        setProducts(products.filter(p => p.id !== productToDelete.id));
+        setSuccess('Product deleted successfully');
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        setError(response.error || 'Failed to delete product');
       }
+    } catch (err) {
+      setError('An error occurred while deleting the product');
+    } finally {
+      setProductToDelete(null);
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -97,9 +115,29 @@ export const ProductListPage = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Products</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {success && (
+        <div className="mb-4 bg-green-50 border-l-4 border-green-400 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-green-700">{success}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Products</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Manage your product inventory
+          </p>
+        </div>
         <Button onClick={handleAddProduct}>Add Product</Button>
       </div>
 
@@ -178,7 +216,7 @@ export const ProductListPage = () => {
           {
             header: 'Actions',
             accessor: 'id',
-            render: (id) => (
+            render: (id, row) => (
               <div className="flex space-x-2">
                 <Button
                   variant="secondary"
@@ -197,7 +235,7 @@ export const ProductListPage = () => {
                 <Button
                   variant="danger"
                   size="sm"
-                  onClick={() => handleDeleteProduct(id)}
+                  onClick={() => handleDeleteClick(row)}
                 >
                   Delete
                 </Button>
@@ -206,6 +244,19 @@ export const ProductListPage = () => {
           }
         ]}
         data={paginatedProducts}
+      />
+
+      <ConfirmationDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setProductToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone and will also remove any associated sales data.`}
+        confirmText="Delete"
+        variant="danger"
       />
 
       {/* Pagination */}

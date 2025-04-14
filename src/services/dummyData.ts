@@ -10,19 +10,43 @@ interface ServiceResponse<T> {
 const dummyUsers: DummyUser[] = [
   {
     id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '+1234567890',
-    role: 'shop_owner',
-    password: 'password123',
+    name: 'Admin User',
+    email: 'admin@example.com',
+    phone: '1234567890',
+    role: 'admin',
+    status: 'active',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: '2',
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    phone: '+0987654321',
+    name: 'Shop Owner 1',
+    email: 'owner1@example.com',
+    phone: '2345678901',
+    role: 'shop_owner',
+    status: 'active',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '3',
+    name: 'Salesman 1',
+    email: 'salesman1@example.com',
+    phone: '3456789012',
     role: 'salesman',
-    password: 'password123',
+    status: 'active',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '4',
+    name: 'Salesman 2',
+    email: 'salesman2@example.com',
+    phone: '4567890123',
+    role: 'salesman',
+    status: 'inactive',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ];
 
@@ -248,6 +272,20 @@ class DummyDataService {
   async getSaleItems(saleId: string): Promise<ServiceResponse<DummySaleItem[]>> {
     const items = dummySaleItems.filter(i => i.sale_id === saleId);
     return { success: true, data: items };
+  }
+
+  async createUser(user: Omit<DummyUser, 'id'>): Promise<ServiceResponse<DummyUser>> {
+    const newUser: DummyUser = {
+      ...user,
+      id: (dummyUsers.length + 1).toString(),
+    };
+    dummyUsers.push(newUser);
+    return { success: true, data: newUser };
+  }
+
+  async getSalesmen(shopId: string): Promise<ServiceResponse<DummyUser[]>> {
+    const salesmen = dummyUsers.filter(u => u.role === 'salesman');
+    return { success: true, data: salesmen };
   }
 }
 

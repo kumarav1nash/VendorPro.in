@@ -12,6 +12,8 @@ import { ProductDetailsPage } from './pages/product/ProductDetailsPage';
 import { ProductEditPage } from './pages/product/ProductEditPage';
 import { SaleListPage } from './pages/sale/SaleListPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
+import SalesmanAddPage from './pages/salesman/SalesmanAddPage';
+import { SalesmanListPage } from './pages/salesman/SalesmanListPage';
 
 export const App = () => {
   return (
@@ -74,6 +76,24 @@ export const App = () => {
 
             {/* Sale Routes */}
             <Route path="sales" element={<SaleListPage />} />
+
+            {/* Salesman Routes */}
+            <Route
+              path="salesmen/add"
+              element={
+                <ProtectedRoute roles={['shop_owner']}>
+                  <SalesmanAddPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="salesmen"
+              element={
+                <ProtectedRoute roles={['shop_owner']}>
+                  <SalesmanListPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
         </Routes>
       </AuthProvider>
