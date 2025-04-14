@@ -1,4 +1,4 @@
-import { DummyShop, DummyProduct, DummySale, DummySaleItem, DummyUser } from '../types/dummy';
+import { DummyShop, DummyProduct, DummySale, DummySaleItem, DummyUser, DummyCommissionRule, CommissionType } from '../types/dummy';
 import { storageService } from './storage';
 
 interface ServiceResponse<T> {
@@ -121,6 +121,43 @@ const dummySaleItems: DummySaleItem[] = [
   },
 ];
 
+const dummyCommissionRules: DummyCommissionRule[] = [
+  {
+    id: '1',
+    shop_id: '1',
+    name: 'Standard Commission',
+    description: 'Standard 5% commission on all sales',
+    type: 'percentage',
+    value: 5,
+    status: 'active',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    shop_id: '1',
+    name: 'High Value Bonus',
+    description: 'Additional 2% for sales above ₹10,000',
+    type: 'percentage',
+    value: 2,
+    min_amount: 10000,
+    status: 'active',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '3',
+    shop_id: '2',
+    name: 'Fixed Commission',
+    description: 'Fixed ₹100 commission per sale',
+    type: 'fixed',
+    value: 100,
+    status: 'active',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+];
+
 class DummyDataService {
   // User methods
   async getUser(id: string): Promise<ServiceResponse<DummyUser>> {
@@ -214,6 +251,74 @@ class DummyDataService {
   async createSaleItem(item: Omit<DummySaleItem, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceResponse<DummySaleItem>> {
     const newItem = storageService.createSaleItem(item);
     return { success: true, data: newItem };
+  }
+
+  // Commission Rule Methods
+  async getCommissionRules(shopId?: string): Promise<DummyCommissionRule[]> {
+    try {
+      let rules = [...dummyCommissionRules];
+      
+      if (shopId) {
+        rules = rules.filter(rule => rule.shop_id === shopId);
+      }
+      
+      return rules;
+    } catch (error) {
+      console.error('Error getting commission rules:', error);
+      throw new Error('Failed to get commission rules');
+    }
+  }
+
+  async createCommissionRule(rule: Omit<DummyCommissionRule, 'id' | 'created_at' | 'updated_at'>): Promise<DummyCommissionRule> {
+    try {
+      const newRule: DummyCommissionRule = {
+        ...rule,
+        id: (dummyCommissionRules.length + 1).toString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      
+      dummyCommissionRules.push(newRule);
+      return newRule;
+    } catch (error) {
+      console.error('Error creating commission rule:', error);
+      throw new Error('Failed to create commission rule');
+    }
+  }
+
+  async updateCommissionRule(id: string, rule: Partial<DummyCommissionRule>): Promise<DummyCommissionRule> {
+    try {
+      const index = dummyCommissionRules.findIndex(r => r.id === id);
+      if (index === -1) {
+        throw new Error('Commission rule not found');
+      }
+      
+      const updatedRule = {
+        ...dummyCommissionRules[index],
+        ...rule,
+        updated_at: new Date().toISOString(),
+      };
+      
+      dummyCommissionRules[index] = updatedRule;
+      return updatedRule;
+    } catch (error) {
+      console.error('Error updating commission rule:', error);
+      throw new Error('Failed to update commission rule');
+    }
+  }
+
+  async deleteCommissionRule(id: string): Promise<void> {
+    try {
+      const index = dummyCommissionRules.findIndex(r => r.id === id);
+      if (index === -1) {
+        throw new Error('Commission rule not found');
+      }
+      
+      dummyCommissionRules.splice(index, 1);
+    } catch (error) {
+      console.error('Error deleting commission rule:', error);
+      throw new Error('Failed to delete commission rule');
+    }
   }
 }
 

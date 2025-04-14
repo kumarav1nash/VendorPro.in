@@ -17,6 +17,7 @@ import SalesmanAddPage from './pages/salesman/SalesmanAddPage';
 import { SalesmanListPage } from './pages/salesman/SalesmanListPage';
 import { SalesEntryPage } from './pages/sale/SalesEntryPage';
 import { SaleDetailsPage } from './pages/sale/SaleDetailsPage';
+import { CommissionStructurePage } from './pages/commission/CommissionStructurePage';
 
 export const App = () => {
   return (
@@ -96,6 +97,16 @@ export const App = () => {
                 element={
                   <ProtectedRoute roles={['shop_owner']}>
                     <SalesmanAddPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Commission Routes - Only accessible by shop owners */}
+              <Route
+                path="commission"
+                element={
+                  <ProtectedRoute roles={['shop_owner']}>
+                    <CommissionStructurePage />
                   </ProtectedRoute>
                 }
               />
