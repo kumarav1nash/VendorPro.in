@@ -158,6 +158,16 @@ class DummyDataService {
     return { success: true, data: dummyProducts[index] };
   }
 
+  async deleteProduct(id: string): Promise<ServiceResponse<void>> {
+    const index = dummyProducts.findIndex(p => p.id === id);
+    if (index === -1) {
+      return { success: false, error: 'Product not found' };
+    }
+    
+    dummyProducts.splice(index, 1);
+    return { success: true };
+  }
+
   // Sale methods
   async getSales(shopId: string): Promise<ServiceResponse<DummySale[]>> {
     const sales = dummySales.filter(s => s.shop_id === shopId);

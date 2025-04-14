@@ -58,7 +58,7 @@
 ### Inventory Management UI
 
 #### TASK-014: Create Product Addition Form UI
-- [~] Priority: P0
+- [x] Priority: P0
 - Description: Implement the form UI for adding new products using dummy data.
 - Acceptance Criteria:
   - Form with all required fields (name, base price, selling price, quantity)
@@ -69,10 +69,11 @@
 - Estimated Hours: 5
 - Assigned To: Current User
 - Started: 2024-04-14
+- Completed: 2024-04-14
 - Dependencies: TASK-013
 
 #### TASK-015: Implement Product Listing Page UI
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Create the page for displaying all products with search and filter capabilities using dummy data.
 - Acceptance Criteria:
   - Table/grid view of products
@@ -83,10 +84,13 @@
   - Quick action buttons (edit, delete)
   - Responsive design
 - Estimated Hours: 5
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Completed: 2024-04-14
+- Dependencies: TASK-014
 
 #### TASK-016: Develop Product Detail View UI
-- [ ] Priority: P0
+- [~] Priority: P0
 - Description: Create the detailed view for individual products using dummy data.
 - Acceptance Criteria:
   - Display all product details
@@ -97,7 +101,9 @@
   - Back button to return to listing
   - Responsive design
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Dependencies: TASK-015
 
 #### TASK-017: Implement Product Editing Form UI
 - [ ] Priority: P0

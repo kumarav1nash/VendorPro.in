@@ -8,6 +8,8 @@ import { ShopDetailsPage } from './pages/shop/ShopDetailsPage';
 import { ShopDashboardPage } from './pages/shop/ShopDashboardPage';
 import { ProductListPage } from './pages/product/ProductListPage';
 import { ProductAddPage } from './pages/product/ProductAddPage';
+import { ProductDetailsPage } from './pages/product/ProductDetailsPage';
+import { ProductEditPage } from './pages/product/ProductEditPage';
 import { SaleListPage } from './pages/sale/SaleListPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
 
@@ -50,6 +52,22 @@ export const App = () => {
               element={
                 <ProtectedRoute roles={['shop_owner']}>
                   <ProductAddPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="products/:productId"
+              element={
+                <ProtectedRoute roles={['shop_owner']}>
+                  <ProductDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="products/:productId/edit"
+              element={
+                <ProtectedRoute roles={['shop_owner']}>
+                  <ProductEditPage />
                 </ProtectedRoute>
               }
             />
