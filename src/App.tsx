@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ShopListPage } from './pages/shop/ShopListPage';
 import { ShopDetailsPage } from './pages/shop/ShopDetailsPage';
+import { ShopDashboardPage } from './pages/shop/ShopDashboardPage';
 import { ProductListPage } from './pages/product/ProductListPage';
 import { SaleListPage } from './pages/sale/SaleListPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
@@ -27,9 +28,10 @@ export const App = () => {
               </ProtectedRoute>
             }
           >
-            <Route index element={<Navigate to="/shops" replace />} />
+            <Route index element={<Navigate to="/dashboard" replace />} />
             
             {/* Shop Routes */}
+            <Route path="dashboard" element={<ShopDashboardPage />} />
             <Route path="shops" element={<ShopListPage />} />
             <Route path="shops/:shopId" element={<ShopDetailsPage />} />
 

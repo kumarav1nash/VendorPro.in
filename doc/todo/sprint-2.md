@@ -41,7 +41,7 @@
 - Dependencies: TASK-011
 
 #### TASK-013: Implement Shop Dashboard Page UI
-- [~] Priority: P0
+- [x] Priority: P0
 - Description: Create the main dashboard page for shop owners using dummy data.
 - Acceptance Criteria:
   - Layout following design specifications
@@ -52,12 +52,13 @@
 - Estimated Hours: 5
 - Assigned To: Current User
 - Started: 2024-04-14
+- Completed: 2024-04-14
 - Dependencies: TASK-012
 
 ### Inventory Management UI
 
 #### TASK-014: Create Product Addition Form UI
-- [ ] Priority: P0
+- [~] Priority: P0
 - Description: Implement the form UI for adding new products using dummy data.
 - Acceptance Criteria:
   - Form with all required fields (name, base price, selling price, quantity)
@@ -66,7 +67,9 @@
   - Success/error notifications
   - Responsive design
 - Estimated Hours: 5
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Dependencies: TASK-013
 
 #### TASK-015: Implement Product Listing Page UI
 - [ ] Priority: P0
