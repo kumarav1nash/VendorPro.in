@@ -3,7 +3,10 @@ export interface DummyUser {
   name: string;
   email: string;
   phone: string;
-  role: 'shop_owner' | 'salesman';
+  role: 'admin' | 'shop_owner' | 'salesman';
+  status: 'active' | 'inactive';
+  created_at: string;
+  updated_at: string;
   password?: string; // Optional for demo purposes only
 }
 
@@ -28,6 +31,7 @@ export interface DummyProduct {
   selling_price: number;
   quantity: number;
   status: 'active' | 'inactive';
+  image?: string; // URL or base64 string of the product image
   created_at: string;
   updated_at: string;
 }

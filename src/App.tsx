@@ -7,8 +7,13 @@ import { ShopListPage } from './pages/shop/ShopListPage';
 import { ShopDetailsPage } from './pages/shop/ShopDetailsPage';
 import { ShopDashboardPage } from './pages/shop/ShopDashboardPage';
 import { ProductListPage } from './pages/product/ProductListPage';
+import { ProductAddPage } from './pages/product/ProductAddPage';
+import { ProductDetailsPage } from './pages/product/ProductDetailsPage';
+import { ProductEditPage } from './pages/product/ProductEditPage';
 import { SaleListPage } from './pages/sale/SaleListPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
+import SalesmanAddPage from './pages/salesman/SalesmanAddPage';
+import { SalesmanListPage } from './pages/salesman/SalesmanListPage';
 
 export const App = () => {
   return (
@@ -44,9 +49,51 @@ export const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="products/add"
+              element={
+                <ProtectedRoute roles={['shop_owner']}>
+                  <ProductAddPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="products/:productId"
+              element={
+                <ProtectedRoute roles={['shop_owner']}>
+                  <ProductDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="products/:productId/edit"
+              element={
+                <ProtectedRoute roles={['shop_owner']}>
+                  <ProductEditPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Sale Routes */}
             <Route path="sales" element={<SaleListPage />} />
+
+            {/* Salesman Routes */}
+            <Route
+              path="salesmen/add"
+              element={
+                <ProtectedRoute roles={['shop_owner']}>
+                  <SalesmanAddPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="salesmen"
+              element={
+                <ProtectedRoute roles={['shop_owner']}>
+                  <SalesmanListPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
         </Routes>
       </AuthProvider>
