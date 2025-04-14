@@ -23,18 +23,62 @@ export const ProductDetailsPage = () => {
       
       try {
         setLoading(true);
-        const response = await dummyDataService.getProducts(user.id);
-        if (response.data) {
-          const foundProduct = response.data.find((p: DummyProduct) => p.id === productId);
-          if (foundProduct) {
-            setProduct(foundProduct);
-            setProducts(response.data);
-          } else {
-            setError('Product not found');
+        setError(null);
+
+        if (user.role === 'shop_owner') {
+          // For shop owners, search in all their shops
+          const shopsResponse = await dummyDataService.getShops();
+          if (shopsResponse.success && shopsResponse.data) {
+            const userShops = shopsResponse.data.filter(shop => shop.owner_id === user.id);
+            let foundProduct: DummyProduct | undefined;
+            
+            for (const shop of userShops) {
+              const productsResponse = await dummyDataService.getProducts(shop.id);
+              if (productsResponse.success && productsResponse.data) {
+                const product = productsResponse.data.find(p => p.id === productId);
+                if (product) {
+                  foundProduct = product;
+                  break;
+                }
+              }
+            }
+            
+            if (foundProduct) {
+              setProduct(foundProduct);
+            } else {
+              setError('Product not found');
+            }
+          }
+        } else if (user.role === 'salesman') {
+          // For salesmen, search in shops they're assigned to
+          const shopsResponse = await dummyDataService.getShops();
+          if (shopsResponse.success && shopsResponse.data) {
+            const assignedShops = shopsResponse.data.filter(shop => 
+              shop.shop_salesmen?.includes(user.id)
+            );
+            let foundProduct: DummyProduct | undefined;
+            
+            for (const shop of assignedShops) {
+              const productsResponse = await dummyDataService.getProducts(shop.id);
+              if (productsResponse.success && productsResponse.data) {
+                const product = productsResponse.data.find(p => p.id === productId);
+                if (product) {
+                  foundProduct = product;
+                  break;
+                }
+              }
+            }
+            
+            if (foundProduct) {
+              setProduct(foundProduct);
+            } else {
+              setError('Product not found');
+            }
           }
         }
       } catch (err) {
         setError('Failed to load product details');
+        console.error('Error loading product:', err);
       } finally {
         setLoading(false);
       }

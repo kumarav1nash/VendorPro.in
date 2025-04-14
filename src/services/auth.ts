@@ -1,5 +1,6 @@
 import { AuthResponse, OTPRequestResponse, OTPVerifyResponse, RegisterResponse } from '../types';
 import { DummyUser } from '../types/dummy';
+import { dummyDataService } from './dummyData';
 
 interface AuthResponse<T = void> {
   success: boolean;
@@ -7,28 +8,8 @@ interface AuthResponse<T = void> {
   error?: string;
 }
 
-// Dummy users for testing
-const dummyUsers: DummyUser[] = [
-  {
-    id: '1',
-    name: 'John Doe',
-    email: 'owner@example.com',
-    phone: '+919876543210',
-    role: 'shop_owner',
-    password: 'password123',
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    email: 'salesman@example.com',
-    phone: '+919876543211',
-    role: 'salesman',
-    password: 'password123',
-  },
-];
-
-// Simulate session storage
-let currentSession: { user: Omit<DummyUser, 'password'> } | null = null;
+// Session storage key
+const SESSION_STORAGE_KEY = 'vendorsInSession';
 
 // Helper function to simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -37,22 +18,37 @@ export const authService = {
   // Sign in with email/password
   async signInWithPassword(email: string, password: string): Promise<AuthResponse<{ user: Omit<DummyUser, 'password'> }>> {
     await delay(500);
-    const user = dummyUsers.find(u => u.email === email && u.password === password);
+    
+    // Get all users from dummyData service
+    const usersResponse = await dummyDataService.getUsers();
+    if (!usersResponse.success || !usersResponse.data) {
+      return { success: false, error: 'Failed to load users' };
+    }
+
+    const user = usersResponse.data.find(u => u.email === email && u.password === password);
     
     if (!user) {
       return { success: false, error: 'Invalid email or password' };
     }
 
     const { password: _, ...userWithoutPassword } = user;
-    currentSession = { user: userWithoutPassword };
+    const session = { user: userWithoutPassword };
+    
+    // Store session in localStorage
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+    
     return { success: true, data: { user: userWithoutPassword } };
   },
 
   // Sign in with OTP (dummy implementation)
   async signInWithOtp(email: string): Promise<AuthResponse> {
     await delay(500);
-    const user = dummyUsers.find(u => u.email === email);
-    
+    const usersResponse = await dummyDataService.getUsers();
+    if (!usersResponse.success || !usersResponse.data) {
+      return { success: false, error: 'Failed to load users' };
+    }
+
+    const user = usersResponse.data.find(u => u.email === email);
     if (!user) {
       return { success: false, error: 'User not found' };
     }
@@ -65,8 +61,12 @@ export const authService = {
   // Verify OTP (dummy implementation)
   async verifyOtp(email: string, token: string): Promise<AuthResponse<{ user: Omit<DummyUser, 'password'> }>> {
     await delay(500);
-    const user = dummyUsers.find(u => u.email === email);
-    
+    const usersResponse = await dummyDataService.getUsers();
+    if (!usersResponse.success || !usersResponse.data) {
+      return { success: false, error: 'Failed to load users' };
+    }
+
+    const user = usersResponse.data.find(u => u.email === email);
     if (!user) {
       return { success: false, error: 'User not found' };
     }
@@ -78,35 +78,50 @@ export const authService = {
     }
 
     const { password: _, ...userWithoutPassword } = user;
-    currentSession = { user: userWithoutPassword };
+    const session = { user: userWithoutPassword };
+    
+    // Store session in localStorage
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+    
     return { success: true, data: { user: userWithoutPassword } };
   },
 
   // Sign out
   async signOut(): Promise<AuthResponse> {
     await delay(500);
-    currentSession = null;
+    // Clear session from localStorage
+    localStorage.removeItem(SESSION_STORAGE_KEY);
     return { success: true };
   },
 
   // Get current session
   async getSession(): Promise<{ user: Omit<DummyUser, 'password'> } | null> {
     await delay(500);
-    return currentSession;
+    const sessionStr = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionStr) return null;
+    
+    try {
+      return JSON.parse(sessionStr);
+    } catch (error) {
+      console.error('Error parsing session:', error);
+      return null;
+    }
   },
 
   // Get current user
   async getUser(): Promise<Omit<DummyUser, 'password'> | null> {
     await delay(500);
-    return currentSession?.user || null;
+    const session = await this.getSession();
+    return session?.user || null;
   },
 
   // Refresh session (dummy implementation)
   async refreshSession() {
-    if (!currentSession) {
+    const session = await this.getSession();
+    if (!session) {
       return { success: false, error: 'No active session' };
     }
-    return { success: true, data: currentSession };
+    return { success: true, data: session };
   }
 };
 

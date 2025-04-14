@@ -46,7 +46,7 @@ export const ModalFooter: React.FC<ModalFooterProps> = ({ children, className = 
   );
 };
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, className = '' }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, className = '' }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

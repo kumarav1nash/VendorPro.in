@@ -11,7 +11,7 @@
 ### Sales Management UI
 
 #### TASK-022: Create Sales Entry Form UI for Salesmen
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Implement the form UI for salesmen to record sales transactions using dummy data.
 - Acceptance Criteria:
   - Product selection from inventory with search
@@ -23,10 +23,13 @@
   - Success/error notifications
   - Responsive design
 - Estimated Hours: 5
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Completed: 2024-04-14
+- Dependencies: None
 
 #### TASK-023: Implement Sales Listing UI with Status
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Create the page for displaying all sales with status indicators using dummy data.
 - Acceptance Criteria:
   - Table view of sales
@@ -38,10 +41,12 @@
   - Quick action buttons (view, approve, reject)
   - Responsive design
 - Estimated Hours: 5
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Dependencies: TASK-022
 
 #### TASK-024: Develop Sales Detail View UI
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Create the detailed view for individual sales using dummy data.
 - Acceptance Criteria:
   - Display sale metadata (date, salesman, total amount)
@@ -52,10 +57,13 @@
   - Back button to return to listing
   - Responsive design
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Completed: 2024-04-14
+- Dependencies: TASK-023
 
 #### TASK-025: Implement Sales Approval/Rejection UI
-- [ ] Priority: P0
+- [~] Priority: P0
 - Description: Create the UI for shop owners to approve or reject sales using dummy data.
 - Acceptance Criteria:
   - Approval button with confirmation
@@ -64,7 +72,9 @@
   - Success/error notifications
   - Responsive design
 - Estimated Hours: 5
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Dependencies: TASK-024
 
 #### TASK-026: Add Bulk Approval/Rejection UI
 - [ ] Priority: P1

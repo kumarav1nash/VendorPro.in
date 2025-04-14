@@ -1,10 +1,61 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { ProductForm } from '../../components/product/ProductForm';
+import { dummyDataService } from '../../services/dummyData';
+import { useState, useEffect } from 'react';
+import { LoadingState } from '../../components/ui/LoadingState';
+import { ErrorMessage } from '../../components/ui/ErrorMessage';
 
 export const ProductAddPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [shopId, setShopId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadShop = async () => {
+      if (!user) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        if (user.role === 'shop_owner') {
+          // For shop owners, get their first shop
+          const shopsResponse = await dummyDataService.getShops();
+          if (shopsResponse.success && shopsResponse.data) {
+            const userShop = shopsResponse.data.find(shop => shop.owner_id === user.id);
+            if (userShop) {
+              setShopId(userShop.id);
+            } else {
+              setError('No shop found for this user');
+            }
+          }
+        } else if (user.role === 'salesman') {
+          // For salesmen, get their first assigned shop
+          const shopsResponse = await dummyDataService.getShops();
+          if (shopsResponse.success && shopsResponse.data) {
+            const assignedShop = shopsResponse.data.find(shop => 
+              shop.shop_salesmen?.includes(user.id)
+            );
+            if (assignedShop) {
+              setShopId(assignedShop.id);
+            } else {
+              setError('No shop assigned to this salesman');
+            }
+          }
+        }
+      } catch (err) {
+        setError('Failed to load shop information');
+        console.error('Error loading shop:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadShop();
+  }, [user]);
 
   const handleSuccess = () => {
     navigate('/products');
@@ -16,6 +67,18 @@ export const ProductAddPage = () => {
 
   if (!user) {
     return null;
+  }
+
+  if (loading) {
+    return <LoadingState />;
+  }
+
+  if (error) {
+    return <ErrorMessage message={error} />;
+  }
+
+  if (!shopId) {
+    return <ErrorMessage message="No shop available to add products" />;
   }
 
   return (
@@ -39,7 +102,7 @@ export const ProductAddPage = () => {
         <div className="bg-white shadow sm:rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <ProductForm 
-              shopId={user.id} 
+              shopId={shopId} 
               onSuccess={handleSuccess} 
               onCancel={handleCancel} 
             />

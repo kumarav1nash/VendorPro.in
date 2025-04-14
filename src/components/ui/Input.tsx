@@ -26,7 +26,7 @@ interface SelectInputProps extends BaseInputProps, Omit<React.SelectHTMLAttribut
 
 type InputProps = TextInputProps | SelectInputProps;
 
-const Input: React.FC<InputProps> = ({
+export const Input: React.FC<InputProps> = ({
   type = 'text',
   size = 'md',
   label,

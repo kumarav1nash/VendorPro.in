@@ -36,13 +36,48 @@ export const ProductListPage = () => {
       if (!user) return;
       
       try {
-        const response = await dummyDataService.getProducts(user.id);
-        if (response.data) {
-          setProducts(response.data);
+        setLoading(true);
+        setError(null);
+
+        if (user.role === 'shop_owner') {
+          // For shop owners, load products from all their shops
+          const shopsResponse = await dummyDataService.getShops();
+          if (shopsResponse.success && shopsResponse.data) {
+            const userShops = shopsResponse.data.filter(shop => shop.owner_id === user.id);
+            const allProducts: DummyProduct[] = [];
+            
+            for (const shop of userShops) {
+              const productsResponse = await dummyDataService.getProducts(shop.id);
+              if (productsResponse.success && productsResponse.data) {
+                allProducts.push(...productsResponse.data);
+              }
+            }
+            
+            setProducts(allProducts);
+          }
+        } else if (user.role === 'salesman') {
+          // For salesmen, load products from shops they're assigned to
+          const shopsResponse = await dummyDataService.getShops();
+          if (shopsResponse.success && shopsResponse.data) {
+            const assignedShops = shopsResponse.data.filter(shop => 
+              shop.shop_salesmen?.includes(user.id)
+            );
+            
+            const allProducts: DummyProduct[] = [];
+            for (const shop of assignedShops) {
+              const productsResponse = await dummyDataService.getProducts(shop.id);
+              if (productsResponse.success && productsResponse.data) {
+                allProducts.push(...productsResponse.data);
+              }
+            }
+            
+            setProducts(allProducts);
+          }
         }
-        setLoading(false);
       } catch (err) {
         setError('Failed to fetch products');
+        console.error('Error fetching products:', err);
+      } finally {
         setLoading(false);
       }
     };

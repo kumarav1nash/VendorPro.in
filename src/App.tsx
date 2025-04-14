@@ -15,6 +15,8 @@ import { SaleListPage } from './pages/sale/SaleListPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
 import SalesmanAddPage from './pages/salesman/SalesmanAddPage';
 import { SalesmanListPage } from './pages/salesman/SalesmanListPage';
+import { SalesEntryPage } from './pages/sale/SalesEntryPage';
+import { SaleDetailsPage } from './pages/sale/SaleDetailsPage';
 
 export const App = () => {
   return (
@@ -22,7 +24,6 @@ export const App = () => {
       <Router>
         <AuthProvider>
           <Routes>
-            {/* Auth Routes */}
             <Route path="/auth/login" element={<LoginPage />} />
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
@@ -76,23 +77,25 @@ export const App = () => {
                 }
               />
 
-              {/* Sale Routes */}
+              {/* Sales Routes */}
               <Route path="sales" element={<SaleListPage />} />
+              <Route path="sales/new" element={<SalesEntryPage />} />
+              <Route path="sales/:saleId" element={<SaleDetailsPage />} />
 
-              {/* Salesman Routes */}
-              <Route
-                path="salesmen/add"
-                element={
-                  <ProtectedRoute roles={['shop_owner']}>
-                    <SalesmanAddPage />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Salesman Routes - Only accessible by shop owners */}
               <Route
                 path="salesmen"
                 element={
                   <ProtectedRoute roles={['shop_owner']}>
                     <SalesmanListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="salesmen/add"
+                element={
+                  <ProtectedRoute roles={['shop_owner']}>
+                    <SalesmanAddPage />
                   </ProtectedRoute>
                 }
               />

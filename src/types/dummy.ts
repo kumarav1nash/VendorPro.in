@@ -7,7 +7,7 @@ export interface DummyUser {
   status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
-  password?: string; // Optional for demo purposes only
+  password: string;
 }
 
 export interface DummyShop {
@@ -20,6 +20,7 @@ export interface DummyShop {
   gst_number: string;
   created_at: string;
   updated_at: string;
+  shop_salesmen: string[]; // Array of salesman IDs assigned to this shop
 }
 
 export interface DummyProduct {
@@ -42,6 +43,7 @@ export interface DummySale {
   salesman_id: string;
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected';
+  rejection_reason?: string;
   created_at: string;
   updated_at: string;
 }
