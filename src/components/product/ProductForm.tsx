@@ -105,32 +105,26 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
     setLoading(true);
 
     try {
-      const formDataToSubmit = new FormData();
-      
-      // Add all form fields
-      formDataToSubmit.append('shop_id', shopId);
-      formDataToSubmit.append('name', formData.name);
-      formDataToSubmit.append('description', formData.description);
-      formDataToSubmit.append('base_price', formData.base_price.toString());
-      formDataToSubmit.append('selling_price', formData.selling_price.toString());
-      formDataToSubmit.append('quantity', formData.quantity.toString());
-      formDataToSubmit.append('status', formData.status);
-      
-      // Add image if present
-      if (formData.image) {
-        formDataToSubmit.append('image', formData.image);
-      }
+      const productData = {
+        shop_id: shopId,
+        name: formData.name,
+        description: formData.description,
+        base_price: formData.base_price,
+        selling_price: formData.selling_price,
+        quantity: formData.quantity,
+        status: formData.status,
+      };
 
       if (product) {
-        const response = await dummyDataService.updateProduct(product.id, formDataToSubmit);
+        const response = await dummyDataService.updateProduct(product.id, productData);
         if (!response.success) {
-          throw new Error('Failed to update product');
+          throw new Error(response.error || 'Failed to update product');
         }
         setSuccess('Product updated successfully');
       } else {
-        const response = await dummyDataService.createProduct(formDataToSubmit);
+        const response = await dummyDataService.createProduct(productData);
         if (!response.success) {
-          throw new Error('Failed to create product');
+          throw new Error(response.error || 'Failed to create product');
         }
         setSuccess('Product created successfully');
       }
@@ -138,6 +132,7 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error('Error submitting product:', err);
     } finally {
       setLoading(false);
     }

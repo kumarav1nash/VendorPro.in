@@ -1,50 +1,125 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { ShopList } from '../../components/shop/ShopList';
-import { ShopForm } from '../../components/shop/ShopForm';
+import { dummyDataService } from '../../services/dummyData';
+import { Button } from '../../components/ui/Button';
+import { Table } from '../../components/ui/Table';
+import { LoadingState } from '../../components/ui/LoadingState';
+import { ErrorMessage } from '../../components/ui/ErrorMessage';
+import { EmptyState } from '../../components/ui/EmptyState';
 
 export const ShopListPage = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [key, setKey] = useState(0); // Used to force re-render of ShopList
+  const [shops, setShops] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCreateSuccess = () => {
-    setShowCreateForm(false);
-    setKey(prev => prev + 1); // Force ShopList to re-fetch data
-  };
+  useEffect(() => {
+    const loadShops = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        console.log('Current user:', user); // Debug log
+
+        const response = await dummyDataService.getShops();
+        if (!response.success) {
+          throw new Error(response.error || 'Failed to load shops');
+        }
+
+        // Filter shops based on user role
+        let filteredShops = response.data || [];
+        if (user?.role === 'shop_owner') {
+          // Only show shops where the current user is the owner
+          filteredShops = filteredShops.filter(shop => {
+            console.log('Shop owner_id:', shop.owner_id, 'User id:', user.id); // Debug log
+            return shop.owner_id === user.id;
+          });
+          console.log('Filtered shops for owner:', filteredShops); // Debug log
+        } else if (user?.role === 'salesman') {
+          // Show shops where the current user is assigned as a salesman
+          filteredShops = filteredShops.filter(shop => shop.shop_salesmen?.includes(user.id));
+        }
+        // Admin users will see all shops
+
+        setShops(filteredShops);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load shops');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      loadShops();
+    }
+  }, [user]);
+
+  if (loading) {
+    return <LoadingState />;
+  }
+
+  if (error) {
+    return <ErrorMessage message={error} />;
+  }
+
+  if (shops.length === 0) {
+    return (
+      <EmptyState
+        title="No Shops Found"
+        description={
+          user?.role === 'salesman'
+            ? "You haven't been assigned to any shops yet."
+            : user?.role === 'shop_owner'
+            ? "You haven't created any shops yet."
+            : "No shops available."
+        }
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Shops</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Shops</h1>
         {user?.role === 'shop_owner' && (
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Create Shop
-          </button>
+          <Button onClick={() => navigate('/shops/add')}>Add Shop</Button>
         )}
       </div>
 
-      {showCreateForm ? (
-        <div className="bg-white shadow sm:rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">Create New Shop</h3>
-              <button
-                onClick={() => setShowCreateForm(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Cancel
-              </button>
-            </div>
-            <ShopForm onSuccess={handleCreateSuccess} />
-          </div>
-        </div>
-      ) : (
-        <ShopList key={key} />
-      )}
+      <Table
+        columns={[
+          { header: 'Name', accessor: 'name' },
+          { header: 'Address', accessor: 'address' },
+          { header: 'Phone', accessor: 'phone' },
+          { header: 'Email', accessor: 'email' },
+          { header: 'GST Number', accessor: 'gst_number' },
+          {
+            header: 'Actions',
+            accessor: 'id',
+            render: (id) => (
+              <div className="space-x-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate(`/shops/${id}`)}
+                >
+                  View
+                </Button>
+                {user?.role === 'shop_owner' && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => navigate(`/shops/${id}/edit`)}
+                  >
+                    Edit
+                  </Button>
+                )}
+              </div>
+            ),
+          },
+        ]}
+        data={shops}
+      />
     </div>
   );
 }; 
