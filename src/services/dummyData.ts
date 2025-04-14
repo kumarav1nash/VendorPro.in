@@ -1,4 +1,4 @@
-import { DummyShop, DummyProduct, DummySale, DummySaleItem } from '../types/dummy';
+import { DummyShop, DummyProduct, DummySale, DummySaleItem, DummyUser } from '../types/dummy';
 
 interface ServiceResponse<T> {
   success: boolean;
@@ -7,6 +7,25 @@ interface ServiceResponse<T> {
 }
 
 // Dummy data
+const dummyUsers: DummyUser[] = [
+  {
+    id: '1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    phone: '+1234567890',
+    role: 'shop_owner',
+    password: 'password123',
+  },
+  {
+    id: '2',
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+    phone: '+0987654321',
+    role: 'salesman',
+    password: 'password123',
+  },
+];
+
 const dummyShops: DummyShop[] = [
   {
     id: '1',
@@ -61,6 +80,14 @@ const dummySaleItems: DummySaleItem[] = [
 ];
 
 class DummyDataService {
+  // User methods
+  async getUser(id: string): Promise<ServiceResponse<DummyUser>> {
+    const user = dummyUsers.find(u => u.id === id);
+    return user 
+      ? { success: true, data: user }
+      : { success: false, error: 'User not found' };
+  }
+
   // Shop methods
   async getShops(): Promise<ServiceResponse<DummyShop[]>> {
     return { success: true, data: dummyShops };
@@ -82,6 +109,22 @@ class DummyDataService {
     };
     dummyShops.push(newShop);
     return { success: true, data: newShop };
+  }
+
+  async updateShop(id: string, data: Omit<DummyShop, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceResponse<DummyShop>> {
+    const shopIndex = dummyShops.findIndex(shop => shop.id === id);
+    if (shopIndex === -1) {
+      return { success: false, error: 'Shop not found' };
+    }
+
+    const updatedShop: DummyShop = {
+      ...dummyShops[shopIndex],
+      ...data,
+      updated_at: new Date().toISOString(),
+    };
+
+    dummyShops[shopIndex] = updatedShop;
+    return { success: true, data: updatedShop };
   }
 
   // Product methods
