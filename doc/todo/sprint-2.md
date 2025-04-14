@@ -11,7 +11,7 @@
 ### Shop Management UI
 
 #### TASK-011: Implement Shop Details Page UI
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Create the shop details page showing all shop information using dummy data.
 - Acceptance Criteria:
   - Display all shop details (name, owner, contact info, GSTIN)
@@ -20,10 +20,13 @@
   - Loading state simulation
   - Error state simulation
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Completed: 2024-04-14
+- Dependencies: None
 
 #### TASK-012: Develop Shop Editing Form UI
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Create the UI for editing shop details using dummy data.
 - Acceptance Criteria:
   - Pre-populated form with existing shop data
@@ -32,10 +35,13 @@
   - Cancel button to return to details page
   - Confirmation dialog for unsaved changes
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Completed: 2024-04-14
+- Dependencies: TASK-011
 
 #### TASK-013: Implement Shop Dashboard Page UI
-- [ ] Priority: P0
+- [~] Priority: P0
 - Description: Create the main dashboard page for shop owners using dummy data.
 - Acceptance Criteria:
   - Layout following design specifications
@@ -44,7 +50,9 @@
   - Responsive design for mobile and desktop
   - Loading states simulation
 - Estimated Hours: 5
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Dependencies: TASK-012
 
 ### Inventory Management UI
 
