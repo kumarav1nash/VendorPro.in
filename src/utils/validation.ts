@@ -120,4 +120,19 @@ export const formatPhoneNumber = (phone: string): string => {
   
   // If none of the above, return the original number
   return phone;
+};
+
+export const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+export const validatePhone = (phone: string): boolean => {
+  const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+  return phoneRegex.test(phone);
+};
+
+export const validateGSTIN = (gstin: string): boolean => {
+  const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+  return gstinRegex.test(gstin);
 }; 

@@ -1,6 +1,6 @@
-# Sprint 2: Shop and Inventory Management
+# Sprint 2: Shop and Inventory Management UI
 
-**Sprint Goal**: Implement core shop management and inventory functionality.
+**Sprint Goal**: Implement core shop management and inventory UI components using dummy data.
 
 **Sprint Duration**: 2 weeks
 
@@ -8,63 +8,61 @@
 
 ## Tasks
 
-### Shop Management
+### Shop Management UI
 
-#### TASK-011: Implement Shop Details Page
+#### TASK-011: Implement Shop Details Page UI
 - [ ] Priority: P0
-- Description: Create the shop details page showing all shop information.
+- Description: Create the shop details page showing all shop information using dummy data.
 - Acceptance Criteria:
   - Display all shop details (name, owner, contact info, GSTIN)
   - Responsive layout following design guidelines
   - Edit button that navigates to edit form
-  - Loading state while fetching shop data
-  - Error handling for failed requests
+  - Loading state simulation
+  - Error state simulation
 - Estimated Hours: 4
 - Assigned To: TBD
 
-#### TASK-012: Develop Shop Editing Functionality
+#### TASK-012: Develop Shop Editing Form UI
 - [ ] Priority: P0
-- Description: Create the functionality to edit shop details.
+- Description: Create the UI for editing shop details using dummy data.
 - Acceptance Criteria:
   - Pre-populated form with existing shop data
   - Form validation for all fields
-  - Submit functionality to update shop in database
   - Success/error notifications
   - Cancel button to return to details page
   - Confirmation dialog for unsaved changes
 - Estimated Hours: 4
 - Assigned To: TBD
 
-#### TASK-013: Implement Shop Dashboard Page
+#### TASK-013: Implement Shop Dashboard Page UI
 - [ ] Priority: P0
-- Description: Create the main dashboard page for shop owners.
+- Description: Create the main dashboard page for shop owners using dummy data.
 - Acceptance Criteria:
   - Layout following design specifications
   - Placeholder sections for KPIs and metrics
   - Navigation to all shop-related functions
   - Responsive design for mobile and desktop
-  - Loading states for data-dependent components
+  - Loading states simulation
 - Estimated Hours: 5
 - Assigned To: TBD
 
-### Inventory Management
+### Inventory Management UI
 
-#### TASK-014: Create Product Addition Form
+#### TASK-014: Create Product Addition Form UI
 - [ ] Priority: P0
-- Description: Implement the form for adding new products to the inventory.
+- Description: Implement the form UI for adding new products using dummy data.
 - Acceptance Criteria:
   - Form with all required fields (name, base price, selling price, quantity)
-  - Image upload functionality
+  - Image upload UI (no actual upload)
   - Form validation
-  - Submit functionality to create product in database
   - Success/error notifications
   - Responsive design
 - Estimated Hours: 5
 - Assigned To: TBD
 
-#### TASK-015: Implement Product Listing Page
+#### TASK-015: Implement Product Listing Page UI
 - [ ] Priority: P0
-- Description: Create the page for displaying all products with search and filter capabilities.
+- Description: Create the page for displaying all products with search and filter capabilities using dummy data.
 - Acceptance Criteria:
   - Table/grid view of products
   - Search functionality
@@ -76,9 +74,9 @@
 - Estimated Hours: 5
 - Assigned To: TBD
 
-#### TASK-016: Develop Product Detail View
+#### TASK-016: Develop Product Detail View UI
 - [ ] Priority: P0
-- Description: Create the detailed view for individual products.
+- Description: Create the detailed view for individual products using dummy data.
 - Acceptance Criteria:
   - Display all product details
   - Image display
@@ -90,49 +88,46 @@
 - Estimated Hours: 4
 - Assigned To: TBD
 
-#### TASK-017: Implement Product Editing Functionality
+#### TASK-017: Implement Product Editing Form UI
 - [ ] Priority: P0
-- Description: Create the functionality to edit product details.
+- Description: Create the UI for editing product details using dummy data.
 - Acceptance Criteria:
   - Pre-populated form with existing product data
-  - Image update capability
+  - Image update UI (no actual update)
   - Form validation
-  - Submit functionality to update product in database
   - Success/error notifications
   - Cancel button to return to details page
 - Estimated Hours: 4
 - Assigned To: TBD
 
-#### TASK-018: Add Product Deletion with Confirmation
+#### TASK-018: Add Product Deletion UI with Confirmation
 - [ ] Priority: P1
-- Description: Implement product deletion with proper confirmation dialog.
+- Description: Implement product deletion UI with proper confirmation dialog using dummy data.
 - Acceptance Criteria:
   - Confirmation dialog before deletion
   - Warning about associated sales/data
   - Success/error notifications
   - Refresh product list after deletion
-  - API integration
 - Estimated Hours: 3
 - Assigned To: TBD
 
-### Salesman Management (Initial)
+### Salesman Management UI
 
-#### TASK-019: Create Salesman Addition Form
+#### TASK-019: Create Salesman Addition Form UI
 - [ ] Priority: P0
-- Description: Implement the form for adding new salesmen to the shop.
+- Description: Implement the form UI for adding new salesmen using dummy data.
 - Acceptance Criteria:
   - Form with all required fields (name, phone, email)
   - Form validation
-  - Password generation or input
-  - Submit functionality to create salesman in database
+  - Password input field
   - Success/error notifications
   - Responsive design
 - Estimated Hours: 4
 - Assigned To: TBD
 
-#### TASK-020: Implement Salesman Listing
+#### TASK-020: Implement Salesman Listing UI
 - [ ] Priority: P0
-- Description: Create the page for displaying all salesmen with status indicators.
+- Description: Create the page for displaying all salesmen with status indicators using dummy data.
 - Acceptance Criteria:
   - Table view of salesmen
   - Status indicators (active/inactive)
@@ -143,17 +138,17 @@
 - Estimated Hours: 4
 - Assigned To: TBD
 
-### Infrastructure Improvements
+### UI Improvements
 
-#### TASK-021: Implement Error Handling and Logging
+#### TASK-021: Implement Error Handling UI
 - [ ] Priority: P1
-- Description: Set up comprehensive error handling and logging throughout the application.
+- Description: Set up comprehensive error handling UI throughout the application.
 - Acceptance Criteria:
   - Global error boundary for React components
-  - Consistent error handling pattern
-  - Error logging to Supabase or external service
+  - Consistent error message patterns
   - User-friendly error messages
-  - Error tracking integration (e.g., Sentry)
+  - Loading states
+  - Empty states
 - Estimated Hours: 3
 - Assigned To: TBD
 
@@ -163,10 +158,10 @@
 - Date: TBD
 - Time: TBD
 - Demo Items:
-  - Shop management functionality
-  - Inventory management functionality
-  - Initial salesman management
-  - Error handling improvements
+  - Shop management UI
+  - Inventory management UI
+  - Salesman management UI
+  - Error handling UI
 
 ### Sprint Retrospective
 - Date: TBD

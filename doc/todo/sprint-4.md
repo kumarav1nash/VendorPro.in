@@ -1,6 +1,6 @@
-# Sprint 4: Reporting, Analytics, and Mobile Optimization
+# Sprint 4: Reporting, Analytics, and Mobile Optimization UI
 
-**Sprint Goal**: Implement reporting functionality, dashboard analytics, and optimize for mobile devices.
+**Sprint Goal**: Implement reporting UI, dashboard analytics, and optimize for mobile devices using dummy data.
 
 **Sprint Duration**: 2 weeks
 
@@ -8,68 +8,67 @@
 
 ## Tasks
 
-### Reporting
+### Reporting UI
 
-#### TASK-033: Implement Daily Sales Report
+#### TASK-033: Implement Daily Sales Report UI
 - [ ] Priority: P0
-- Description: Create a daily sales report view with detailed breakdown.
+- Description: Create a daily sales report view with detailed breakdown using dummy data.
 - Acceptance Criteria:
   - Date selector for report
   - Summary metrics (total sales, revenue, commission)
   - Detailed table of sales transactions
   - Product-wise breakdown
   - Salesman-wise breakdown
-  - Export to PDF/CSV functionality
+  - Export UI (no actual export)
   - Responsive design
 - Estimated Hours: 5
 - Assigned To: TBD
 
-#### TASK-034: Create Commission Summary Report
+#### TASK-034: Create Commission Summary Report UI
 - [ ] Priority: P0
-- Description: Implement a comprehensive commission report for shop owners.
+- Description: Implement a comprehensive commission report UI for shop owners using dummy data.
 - Acceptance Criteria:
   - Date range selector
   - Summary metrics (total commission, average commission)
   - Detailed breakdown by salesman
   - Commission by product category
   - Trends visualization
-  - Export functionality
+  - Export UI (no actual export)
   - Responsive design
 - Estimated Hours: 5
 - Assigned To: TBD
 
-#### TASK-035: Develop Inventory Status Report
+#### TASK-035: Develop Inventory Status Report UI
 - [ ] Priority: P0
-- Description: Create an inventory status report with stock levels and valuation.
+- Description: Create an inventory status report UI with stock levels and valuation using dummy data.
 - Acceptance Criteria:
   - Current stock levels for all products
   - Inventory valuation (cost and retail)
   - Low stock warnings
   - Sorting and filtering options
   - Product category breakdown
-  - Export functionality
+  - Export UI (no actual export)
   - Responsive design
 - Estimated Hours: 4
 - Assigned To: TBD
 
-#### TASK-036: Add Report Export Functionality
+#### TASK-036: Add Report Export UI
 - [ ] Priority: P1
-- Description: Implement functionality to export reports in various formats.
+- Description: Implement UI for exporting reports in various formats using dummy data.
 - Acceptance Criteria:
-  - PDF export with proper formatting
-  - CSV export for data analysis
-  - Excel export with formatting
-  - Email report option
+  - Export format selection (PDF, CSV, Excel)
+  - Email report UI
   - Custom date range selection
-  - Progress indicator during export
+  - Progress indicator during export simulation
+  - Responsive design
 - Estimated Hours: 4
 - Assigned To: TBD
 
-### Dashboard & Analytics
+### Dashboard & Analytics UI
 
-#### TASK-037: Enhance Shop Owner Dashboard with KPIs
+#### TASK-037: Enhance Shop Owner Dashboard UI with KPIs
 - [ ] Priority: P0
-- Description: Improve the shop owner dashboard with key performance indicators and visualizations.
+- Description: Improve the shop owner dashboard with key performance indicators and visualizations using dummy data.
 - Acceptance Criteria:
   - Sales trend chart (daily, weekly, monthly)
   - Top-performing products section
@@ -81,9 +80,9 @@
 - Estimated Hours: 5
 - Assigned To: TBD
 
-#### TASK-038: Implement Data Visualization for Sales Trends
+#### TASK-038: Implement Data Visualization UI for Sales Trends
 - [ ] Priority: P0
-- Description: Create interactive charts and graphs for sales data visualization.
+- Description: Create interactive charts and graphs for sales data visualization using dummy data.
 - Acceptance Criteria:
   - Line chart for sales over time
   - Bar chart for product performance
@@ -95,9 +94,9 @@
 - Estimated Hours: 5
 - Assigned To: TBD
 
-#### TASK-039: Create Top Performers Section
+#### TASK-039: Create Top Performers UI Section
 - [ ] Priority: P1
-- Description: Implement a dashboard section showing top-performing products and salesmen.
+- Description: Implement a dashboard section showing top-performing products and salesmen using dummy data.
 - Acceptance Criteria:
   - Top products by sales volume and revenue
   - Top salesmen by sales and commission
@@ -146,23 +145,22 @@
   - App icons in various sizes
   - Splash screen
   - Offline fallback page
-  - Push notification capability
   - Installation prompt
 - Estimated Hours: 4
 - Assigned To: TBD
 
 ### Performance Optimization
 
-#### TASK-043: Implement Data Caching Strategy
+#### TASK-043: Implement UI Performance Optimizations
 - [ ] Priority: P1
-- Description: Develop and implement a data caching strategy for improved performance.
+- Description: Develop and implement UI performance optimizations.
 - Acceptance Criteria:
-  - Local storage caching for frequently accessed data
-  - Cache invalidation strategy
-  - Offline data access where appropriate
-  - Loading state indicators during cache updates
+  - Optimize component rendering
+  - Implement virtual scrolling for long lists
+  - Optimize image loading and display
+  - Implement lazy loading for components
   - Performance metrics before/after implementation
-  - Documentation of caching approach
+  - Documentation of optimization approach
 - Estimated Hours: 4
 - Assigned To: TBD
 
@@ -172,8 +170,8 @@
 - Date: TBD
 - Time: TBD
 - Demo Items:
-  - Reporting functionality
-  - Dashboard analytics
+  - Reporting UI
+  - Dashboard analytics UI
   - Mobile optimizations
   - PWA features
   - Performance improvements

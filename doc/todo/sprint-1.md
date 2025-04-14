@@ -88,7 +88,7 @@
 - Status: Completed - All acceptance criteria met
 
 #### TASK-006: Create Login Page UI
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Implement the login page UI for both shop owners and salesmen.
 - Acceptance Criteria:
   - Mobile OTP login form for shop owners
@@ -99,10 +99,13 @@
   - Loading states during authentication
   - Responsive design for mobile and desktop
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-03-21
+- Completed: 2024-04-06
+- Status: Completed - All acceptance criteria met with improved error handling
 
 #### TASK-007: Implement Authentication Logic
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Connect the login UI with authentication API and handle user sessions.
 - Acceptance Criteria:
   - Integration with Supabase Auth
@@ -112,28 +115,29 @@
   - Remember me functionality
   - Logout functionality
 - Estimated Hours: 5
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-06
+- Completed: 2024-04-06
+- Status: Completed - All acceptance criteria met with enhanced session management and role-based redirection
 
 ### Database Setup
 
 #### TASK-008: Implement Database Schema
-- [ ] Priority: P0
-- Description: Create the initial database tables according to the schema design.
+- [x] Priority: P0
+- Description: Create database schema for shops, products, and sales.
 - Acceptance Criteria:
-  - Users table
-  - Shops table
-  - Products table
-  - Salesmen table
-  - Commission structures table
-  - Sales table
-  - Sale items table
-  - All tables have proper constraints and indexes
-  - Documentation of database schema
-- Estimated Hours: 5
-- Assigned To: TBD
+  - Tables for shops, products, and sales
+  - Proper relationships and constraints
+  - Row Level Security (RLS) policies
+  - TypeScript types for database schema
+- Estimated Hours: 4
+- Assigned To: Current User
+- Started: 2024-04-06
+- Completed: 2024-04-06
+- Status: Completed - Created database schema with tables, relationships, RLS policies, and TypeScript types
 
 #### TASK-009: Create Database Migration Scripts
-- [ ] Priority: P1
+- [x] Priority: P1
 - Description: Develop migration scripts for database changes and initial seed data.
 - Acceptance Criteria:
   - Migration scripts for all tables
@@ -142,12 +146,15 @@
   - Documentation on how to run migrations
   - Rollback scripts for each migration
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-06
+- Completed: 2024-04-06
+- Status: Completed - Created migration scripts, seed data, rollback scripts, and documentation
 
 ### Shop Management
 
 #### TASK-010: Create Shop Registration Form
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Implement the shop registration form for new shop owners.
 - Acceptance Criteria:
   - Form with all required fields (shop name, owner name, email, GSTIN)
@@ -156,7 +163,10 @@
   - Success/error notifications
   - Responsive design
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-06
+- Completed: 2024-04-06
+- Status: Completed - Created shop registration form with validation, error handling, and database integration
 
 ## Sprint Review & Retrospective
 

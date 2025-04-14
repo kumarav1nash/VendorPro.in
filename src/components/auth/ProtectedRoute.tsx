@@ -1,39 +1,31 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
-  requireAuth?: boolean;
+  children: ReactNode;
+  roles?: ('shop_owner' | 'salesman')[];
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requireAuth = true 
-}) => {
-  const { isAuthenticated, isLoading } = useAuth();
+export const ProtectedRoute = ({ children, roles }: ProtectedRouteProps) => {
+  const { user, loading } = useAuth();
   const location = useLocation();
 
-  // Show loading state while checking authentication
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
   }
 
-  // Redirect to login if authentication is required but user is not authenticated
-  if (requireAuth && !isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!user) {
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
-  // Redirect to home if user is authenticated but trying to access auth pages
-  if (!requireAuth && isAuthenticated) {
-    return <Navigate to="/" replace />;
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <>{children}</>;
-};
-
-export default ProtectedRoute; 
+}; 
