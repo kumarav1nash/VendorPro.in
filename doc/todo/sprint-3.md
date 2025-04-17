@@ -63,7 +63,7 @@
 - Dependencies: TASK-023
 
 #### TASK-025: Implement Sales Approval/Rejection UI
-- [~] Priority: P0
+- [x] Priority: P0
 - Description: Create the UI for shop owners to approve or reject sales using dummy data.
 - Acceptance Criteria:
   - Approval button with confirmation
@@ -74,10 +74,11 @@
 - Estimated Hours: 5
 - Assigned To: Current User
 - Started: 2024-04-14
+- Completed: 2024-04-14
 - Dependencies: TASK-024
 
 #### TASK-026: Add Bulk Approval/Rejection UI
-- [ ] Priority: P1
+- [x] Priority: P1
 - Description: Implement UI for approving or rejecting multiple sales at once using dummy data.
 - Acceptance Criteria:
   - Multi-select capability in sales list
@@ -87,12 +88,15 @@
   - Success/error notifications
   - Responsive design
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Completed: 2024-04-14
+- Dependencies: TASK-024
 
 ### Commission Management UI
 
 #### TASK-027: Create Commission Structure Setup UI
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Implement the interface for shop owners to define commission structures using dummy data.
 - Acceptance Criteria:
   - Form for creating commission rules
@@ -102,10 +106,12 @@
   - Success/error notifications
   - Responsive design
 - Estimated Hours: 5
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Dependencies: None
 
 #### TASK-028: Implement Commission Calculation UI
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Develop the UI to display commission calculations based on defined structures using dummy data.
 - Acceptance Criteria:
   - Display calculation results for both percentage and fixed commissions
@@ -117,7 +123,7 @@
 - Assigned To: TBD
 
 #### TASK-029: Create Commission Overview UI for Salesmen
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Implement the view for salesmen to see their earned commissions using dummy data.
 - Acceptance Criteria:
   - Display daily, weekly, monthly summaries
@@ -127,7 +133,9 @@
   - Visual representation of commission trends
   - Responsive design
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Dependencies: TASK-028
 
 ### Salesman Experience UI
 

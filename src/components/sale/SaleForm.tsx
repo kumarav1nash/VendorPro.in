@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DummySale, DummySaleItem, DummyProduct } from '../../types/dummy';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 
 interface SaleFormProps {
   shopId: string;
@@ -58,6 +58,8 @@ export const SaleForm = ({ shopId, salesmanId, products, onSuccess }: SaleFormPr
         salesman_id: salesmanId,
         total_amount: items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
         status: 'pending',
+        created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       });
 
       if (!saleResponse.success) {
@@ -65,13 +67,15 @@ export const SaleForm = ({ shopId, salesmanId, products, onSuccess }: SaleFormPr
       }
 
       // Create sale items
-      const saleId = saleResponse.data.id;
+      const saleId = saleResponse.data!.id; // Non-null assertion after success check
       const itemPromises = items.map(item =>
         dummyDataService.createSaleItem({
           sale_id: saleId,
           product_id: item.product_id,
           quantity: item.quantity,
           price: item.price,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
       );
 

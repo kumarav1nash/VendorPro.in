@@ -56,4 +56,31 @@ export interface DummySaleItem {
   price: number;
   created_at: string;
   updated_at: string;
+}
+
+export type CommissionType = 'percentage' | 'fixed';
+
+export interface DummyCommissionRule {
+  id: string;
+  shop_id: string;
+  name: string;
+  description: string;
+  type: CommissionType;
+  value: number;
+  product_id?: string; // If null, rule applies to all products
+  min_amount?: number; // Minimum sale amount for rule to apply
+  max_amount?: number; // Maximum sale amount for rule to apply
+  status: 'active' | 'inactive';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DummyCommission {
+  id: string;
+  sale_id: string;
+  salesman_id: string;
+  amount: number;
+  rule_id: string;
+  created_at: string;
+  updated_at: string;
 } 

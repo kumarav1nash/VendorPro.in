@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { DummyUser } from '../../types/dummy';
 import { Button } from '../../components/ui/Button';
 import { Table } from '../../components/ui/Table';
@@ -34,7 +34,7 @@ export const SalesmanListPage = () => {
       if (!user) return;
       
       try {
-        const response = await dummyDataService.getSalesmen(user.id);
+        const response = await dummyDataService.getSalesmen(user.id); //here we should get list of salesmans assigned to the current user's shop
         if (response.success && response.data) {
           setSalesmen(response.data);
         } else {

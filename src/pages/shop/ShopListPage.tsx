@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { Button } from '../../components/ui/Button';
 import { Table } from '../../components/ui/Table';
 import { LoadingState } from '../../components/ui/LoadingState';

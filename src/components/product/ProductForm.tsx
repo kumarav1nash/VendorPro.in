@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DummyProduct } from '../../types/dummy';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 
 interface ProductFormProps {
   shopId: string;
@@ -19,14 +19,22 @@ interface FormErrors {
 }
 
 export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFormProps) => {
-  const [formData, setFormData] = useState<Omit<DummyProduct, 'id' | 'shop_id' | 'created_at' | 'updated_at'> & { image?: File }>({
+  const [formData, setFormData] = useState<
+    Omit<DummyProduct, 'id' | 'shop_id' | 'created_at' | 'updated_at'> & {
+      image?: string;         // Existing image URL from DummyProduct
+      imageFile?: File;       // New file upload
+      imagePreview?: string;  // Preview URL for new uploads
+    }
+  >({
     name: product?.name || '',
     description: product?.description || '',
     base_price: product?.base_price || 0,
     selling_price: product?.selling_price || 0,
     quantity: product?.quantity || 0,
     status: product?.status || 'active',
-    image: undefined,
+    image: product?.image,    // Initialize with existing image URL
+    imageFile: undefined,     // No file initially
+    imagePreview: undefined   // No preview initially
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -80,11 +88,11 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
       newErrors.quantity = 'Quantity cannot be negative';
     }
 
-    if (formData.image) {
-      if (formData.image.size > 10 * 1024 * 1024) { // 10MB limit
+    if (formData.imageFile) {
+      if (formData.imageFile.size > 10 * 1024 * 1024) { // 10MB limit
         newErrors.image = 'Image size must be less than 10MB';
       }
-      if (!['image/jpeg', 'image/png', 'image/gif'].includes(formData.image.type)) {
+      if (!['image/jpeg', 'image/png', 'image/gif'].includes(formData.imageFile.type)) {
         newErrors.image = 'Image must be JPEG, PNG, or GIF';
       }
     }
@@ -113,6 +121,7 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
         selling_price: formData.selling_price,
         quantity: formData.quantity,
         status: formData.status,
+      
       };
 
       if (product) {
@@ -167,7 +176,12 @@ export const ProductForm = ({ shopId, product, onSuccess, onCancel }: ProductFor
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
-        setFormData(prev => ({ ...prev, image: file }));
+        setFormData(prev => ({
+          ...prev,
+          image: prev.image, // Preserve existing image URL
+          imageFile: file, // Store new file separately
+          imagePreview: URL.createObjectURL(file)
+        }));
       };
       reader.readAsDataURL(file);
     }

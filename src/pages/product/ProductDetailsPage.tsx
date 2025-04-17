@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import type { DummyProduct } from '../../types/dummyData';
 import { Button } from '../../components/ui/Button';
 import Card from '../../components/ui/Card';

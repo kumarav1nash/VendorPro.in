@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DummyUser } from '../../types/dummy';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { Button } from '../ui/Button';
 import Input from '../ui/Input';
 import { Select } from '../ui/Select';
@@ -19,6 +19,9 @@ export const SalesmanForm = ({ shopId, onSuccess, onCancel }: SalesmanFormProps)
     email: '',
     phone: '',
     password: '',
+    status: 'active', // Add required status field
+    created_at: new Date().toISOString(), // Add required created_at
+    updated_at: new Date().toISOString() // Add required updated_at
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

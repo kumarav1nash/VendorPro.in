@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DummyProduct, DummySale, DummySaleItem } from '../../types/dummy';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { Button } from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -30,6 +30,7 @@ export const SalesEntryForm = ({ shopId, salesmanId, onSuccess, onCancel }: Sale
     const loadProducts = async () => {
       try {
         const response = await dummyDataService.getProducts(shopId);
+        console.log(response,shopId);
         if (response.success && response.data) {
           setProducts(response.data);
         } else {
@@ -92,11 +93,14 @@ export const SalesEntryForm = ({ shopId, salesmanId, onSuccess, onCancel }: Sale
 
       const totalAmount = selectedProducts.reduce((sum, product) => sum + product.total, 0);
 
-      const sale: Omit<DummySale, 'id' | 'created_at' | 'updated_at'> = {
+      const sale: Omit<DummySale, 'id'> = {
         shop_id: shopId,
         salesman_id: salesmanId,
         total_amount: totalAmount,
-        status: 'pending'
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        
       };
 
       const saleItems = selectedProducts.map(product => ({
@@ -105,7 +109,7 @@ export const SalesEntryForm = ({ shopId, salesmanId, onSuccess, onCancel }: Sale
         price: product.selling_price
       }));
 
-      const response = await dummyDataService.createSale(sale, saleItems);
+      const response = await dummyDataService.createSale(sale);
       if (response.success) {
         setSuccess('Sale created successfully');
         onSuccess();

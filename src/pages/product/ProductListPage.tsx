@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { DummyProduct } from '../../types/dummyData';
 import { formatCurrency } from '../../utils/format';
 import { Button } from '../../components/ui/Button';

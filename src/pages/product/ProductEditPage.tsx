@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { ProductForm } from '../../components/product/ProductForm';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { useState, useEffect } from 'react';
 import { DummyProduct } from '../../types/dummyData';
 
@@ -97,7 +97,7 @@ export const ProductEditPage = () => {
         <div className="bg-white shadow sm:rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <ProductForm 
-              shopId={user.id} 
+              shopId={product.shop_id} 
               product={product}
               onSuccess={handleSuccess} 
               onCancel={handleCancel} 

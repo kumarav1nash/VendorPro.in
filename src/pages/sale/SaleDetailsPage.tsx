@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { DummySale, DummySaleItem, DummyUser, DummyProduct } from '../../types/dummy';
 import { Button } from '../../components/ui/Button';
 import { Table } from '../../components/ui/Table';
@@ -78,7 +78,7 @@ export const SaleDetailsPage = () => {
   const handleApprove = async () => {
     if (!sale) return;
     try {
-      const response = await dummyDataService.updateSaleStatus(sale.id, 'approved');
+      const response = await dummyDataService.updateSale(sale.id, { status: 'approved' });
       if (response.success && response.data) {
         setSale(response.data);
         setSuccess('Sale approved successfully');
@@ -95,7 +95,7 @@ export const SaleDetailsPage = () => {
   const handleReject = async () => {
     if (!sale) return;
     try {
-      const response = await dummyDataService.updateSaleStatus(sale.id, 'rejected', rejectionReason);
+      const response = await dummyDataService.updateSale(sale.id, { status: 'rejected',rejection_reason:rejectionReason });
       if (response.success && response.data) {
         setSale(response.data);
         setSuccess('Sale rejected successfully');
@@ -231,7 +231,6 @@ export const SaleDetailsPage = () => {
       <Modal
         isOpen={showApproveModal}
         onClose={() => setShowApproveModal(false)}
-        title="Approve Sale"
       >
         <div className="space-y-4">
           <p>Are you sure you want to approve this sale?</p>
@@ -249,7 +248,6 @@ export const SaleDetailsPage = () => {
       <Modal
         isOpen={showRejectModal}
         onClose={() => setShowRejectModal(false)}
-        title="Reject Sale"
       >
         <div className="space-y-4">
           <p>Please provide a reason for rejecting this sale:</p>

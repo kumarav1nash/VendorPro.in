@@ -1,4 +1,4 @@
-import { DummyUser, DummyShop, DummyProduct, DummySale, DummySaleItem } from '../types/dummy';
+import { DummyUser, DummyShop, DummyProduct, DummySale, DummySaleItem, DummyCommissionRule } from '../types/dummy';
 
 interface StorageData {
   users: DummyUser[];
@@ -6,6 +6,15 @@ interface StorageData {
   products: DummyProduct[];
   sales: DummySale[];
   saleItems: DummySaleItem[];
+  commissionRules: DummyCommissionRule[];
+  commissions: {
+    sale_id: string;
+    amount: number;
+    rate: number;
+    status: string;
+    created_at: string;
+    updated_at: string;
+  }[];
 }
 
 // Dummy data
@@ -93,15 +102,18 @@ class StorageService {
 
   private loadData(): StorageData {
     const storedData = localStorage.getItem(this.STORAGE_KEY);
-    if (storedData) {
-      return JSON.parse(storedData);
-    }
+    return storedData ? JSON.parse(storedData) : this.getEmptyData();
+  }
+
+  private getEmptyData(): StorageData {
     return {
-      users: initialUsers,
-      shops: initialShops,
+      users: [],
+      shops: [],
       products: [],
       sales: [],
       saleItems: [],
+      commissionRules: [],
+      commissions: [],
     };
   }
 
@@ -184,6 +196,10 @@ class StorageService {
     return this.data.products.filter(p => p.shop_id === shopId);
   }
 
+  getAllProducts(): DummyProduct[] {
+    return this.data.products;
+  }
+
   getProduct(id: string): DummyProduct | undefined {
     return this.data.products.find(p => p.id === id);
   }
@@ -200,10 +216,9 @@ class StorageService {
     return newProduct;
   }
 
-  updateProduct(id: string, updates: Partial<DummyProduct>): DummyProduct | undefined {
+  updateProduct(id: string, updates: Partial<DummyProduct>): DummyProduct | null {
     const index = this.data.products.findIndex(p => p.id === id);
-    if (index === -1) return undefined;
-
+    if (index === -1) return null;
     const updatedProduct = {
       ...this.data.products[index],
       ...updates,
@@ -212,6 +227,11 @@ class StorageService {
     this.data.products[index] = updatedProduct;
     this.saveData();
     return updatedProduct;
+  }
+
+  deleteProduct(id: string): void {
+    this.data.products = this.data.products.filter(p => p.id !== id);
+    this.saveData();
   }
 
   // Sales
@@ -264,6 +284,75 @@ class StorageService {
     this.data.saleItems.push(newItem);
     this.saveData();
     return newItem;
+  }
+
+  // Commission Rules
+  getCommissionRules(): DummyCommissionRule[] {
+    return this.data.commissionRules;
+  }
+
+  createCommissionRule(rule: Omit<DummyCommissionRule, 'id'>): DummyCommissionRule {
+    const newRule: DummyCommissionRule = {
+      ...rule,
+      id: (this.data.commissionRules.length + 1).toString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    this.data.commissionRules.push(newRule);
+    this.saveData();
+    return newRule;
+  }
+
+  updateCommissionRule(id: string, updates: Partial<DummyCommissionRule>): DummyCommissionRule | undefined {
+    const index = this.data.commissionRules.findIndex(r => r.id === id);
+    if (index === -1) return undefined;
+
+    const updatedRule = {
+      ...this.data.commissionRules[index],
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+    this.data.commissionRules[index] = updatedRule;
+    this.saveData();
+    return updatedRule;
+  }
+
+  // Commissions
+  getCommission(saleId: string) {
+    return this.data.commissions.find(c => c.sale_id === saleId);
+  }
+
+  createCommission(commission: { sale_id: string; amount: number; rate: number; status: string }) {
+    if (!this.data.commissions) {
+      this.data.commissions = [];
+    }
+    const newCommission = {
+      ...commission,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    this.data.commissions.push(newCommission);
+    this.saveData();
+    return newCommission;
+  }
+
+  updateCommission(saleId: string, updates: Partial<StorageData['commissions'][0]>) {
+    const index = this.data.commissions.findIndex(c => c.sale_id === saleId);
+    if (index === -1) return undefined;
+
+    const updatedCommission = {
+      ...this.data.commissions[index],
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+    this.data.commissions[index] = updatedCommission;
+    this.saveData();
+    return updatedCommission;
+  }
+
+  clearStorage() {
+    this.data = this.getEmptyData();
+    this.saveData();
   }
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DummySale, DummySaleItem } from '../../types/dummy';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 
 interface SaleListProps {
   shopId: string;
@@ -16,14 +16,15 @@ export const SaleList = ({ shopId }: SaleListProps) => {
     const fetchSales = async () => {
       try {
         const salesResponse = await dummyDataService.getSales(shopId);
+        console.log("from sales list ",salesResponse);
         if (!salesResponse.success) {
           throw new Error('Failed to fetch sales');
         }
 
-        setSales(salesResponse.data);
+        setSales(salesResponse.data!); // Non-null assertion since we checked success
 
         // Fetch sale items for each sale
-        const itemsPromises = salesResponse.data.map(async (sale) => {
+        const itemsPromises = salesResponse.data!.map(async (sale) => { // Non-null assertion
           const itemsResponse = await dummyDataService.getSaleItems(sale.id);
           if (itemsResponse.success) {
             return { saleId: sale.id, items: itemsResponse.data };
@@ -33,7 +34,7 @@ export const SaleList = ({ shopId }: SaleListProps) => {
 
         const itemsResults = await Promise.all(itemsPromises);
         const itemsMap = itemsResults.reduce((acc, { saleId, items }) => {
-          acc[saleId] = items;
+          acc[saleId] = items!; // Non-null assertion after success check
           return acc;
         }, {} as Record<string, DummySaleItem[]>);
 

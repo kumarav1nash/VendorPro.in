@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { DummySale, DummyUser } from '../../types/dummy';
 import { Button } from '../../components/ui/Button';
 import { Table } from '../../components/ui/Table';
 import Input from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { useNavigate } from 'react-router-dom';
+import { Modal } from '../../components/ui/Modal';
+
+// Define a type for user without password
+type UserWithoutPassword = Omit<DummyUser, 'password'>;
 
 export const SaleListPage = () => {
   const { user } = useAuth();
@@ -15,11 +19,15 @@ export const SaleListPage = () => {
   const [salesmen, setSalesmen] = useState<DummyUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [salesmanFilter, setSalesmanFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedSales, setSelectedSales] = useState<string[]>([]);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -43,7 +51,7 @@ export const SaleListPage = () => {
             }
             
             setSales(allShopSales);
-            
+            console.log("from sale list page",allShopSales);
             // Load salesmen assigned to these shops
             const assignedSalesmen = new Set<string>();
             userShops.forEach(shop => {
@@ -83,7 +91,12 @@ export const SaleListPage = () => {
             }
             
             setSales(allShopSales);
-            setSalesmen([user]); // Salesmen only see themselves in the filter
+            // Add a default password to the user object to satisfy the DummyUser type
+            const userWithPassword = {
+              ...user,
+              password: '' // Add an empty password to satisfy the type
+            } as DummyUser;
+            setSalesmen([userWithPassword]); // Salesmen only see themselves in the filter
           }
         }
       } catch (err) {
@@ -102,10 +115,10 @@ export const SaleListPage = () => {
     if (!salesman) {
       // If we can't find the salesman, try to get it from the service
       dummyDataService.getUser(salesmanId).then(response => {
-        if (response.success && response.data) {
+        if (response.success && response.data!) {
           setSalesmen(prev => {
-            const exists = prev.some(s => s.id === response.data.id);
-            if (!exists) {
+            const exists = prev.some(s => s.id === response.data?.id);
+            if (response.data && !exists) {
               return [...prev, response.data];
             }
             return prev;
@@ -188,13 +201,133 @@ export const SaleListPage = () => {
   };
 
   const handleApproveSale = async (saleId: string) => {
-    // TODO: Implement sale approval
-    console.log('Approve sale:', saleId);
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Update sale status in storage
+      const updateResponse = await dummyDataService.updateSale(saleId, { status: 'approved' });
+      if (!updateResponse.success) {
+        throw new Error(updateResponse.error || 'Failed to update sale');
+      }
+
+      // Calculate commission for the approved sale
+      await dummyDataService.calculateCommission(saleId);
+      
+      // Update local state
+      setSales(prev => prev.map(sale => {
+        if (sale.id === saleId) {
+          return { ...sale, status: 'approved' };
+        }
+        return sale;
+      }));
+      
+      setSuccess('Sale approved successfully');
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      setError('Failed to approve sale');
+      console.error('Error approving sale:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRejectSale = async (saleId: string) => {
-    // TODO: Implement sale rejection
-    console.log('Reject sale:', saleId);
+    setShowRejectModal(true);
+    setSelectedSales([saleId]);
+  };
+
+  const handleSelectSale = (saleId: string) => {
+    setSelectedSales(prev => {
+      if (prev.includes(saleId)) {
+        return prev.filter(id => id !== saleId);
+      } else {
+        return [...prev, saleId];
+      }
+    });
+  };
+
+  const handleSelectAllSales = () => {
+    if (selectedSales.length === paginatedSales.length) {
+      setSelectedSales([]);
+    } else {
+      setSelectedSales(paginatedSales.map(sale => sale.id));
+    }
+  };
+
+  const handleBulkApprove = async () => {
+    if (selectedSales.length === 0) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Update all selected sales in storage
+      const updatePromises = selectedSales.map(saleId => 
+        dummyDataService.updateSale(saleId, { status: 'approved' })
+      );
+      
+      const updateResults = await Promise.all(updatePromises);
+      const failedUpdates = updateResults.filter(result => !result.success);
+      
+      if (failedUpdates.length > 0) {
+        throw new Error('Failed to update some sales');
+      }
+
+      // Calculate commissions for all approved sales
+      const commissionPromises = selectedSales.map(saleId => 
+        dummyDataService.calculateCommission(saleId)
+      );
+      await Promise.all(commissionPromises);
+      
+      // Update local state
+      setSales(prev => prev.map(sale => {
+        if (selectedSales.includes(sale.id)) {
+          return { ...sale, status: 'approved' };
+        }
+        return sale;
+      }));
+      
+      setSelectedSales([]);
+      setSuccess(`${selectedSales.length} sales approved successfully`);
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      setError('Failed to approve sales');
+      console.error('Error approving sales:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBulkReject = async () => {
+    if (selectedSales.length === 0) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Update local state
+      setSales(prev => prev.map(sale => {
+        if (selectedSales.includes(sale.id)) {
+          return { ...sale, status: 'rejected' };
+        }
+        return sale;
+      }));
+      
+      setSuccess(`${selectedSales.length} sales rejected successfully`);
+      setSelectedSales([]);
+      setShowRejectModal(false);
+      setRejectReason('');
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      setError('Failed to reject sales');
+      console.error('Error rejecting sales:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) return <div>Loading sales...</div>;
@@ -202,6 +335,21 @@ export const SaleListPage = () => {
 
   return (
     <div className="p-4">
+      {success && (
+        <div className="mb-4 bg-green-50 border-l-4 border-green-400 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-green-700">{success}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Sales</h1>
         {user?.role === 'salesman' && (
@@ -210,6 +358,17 @@ export const SaleListPage = () => {
           </Button>
         )}
       </div>
+
+      {user?.role === 'shop_owner' && selectedSales.length > 0 && (
+        <div className="mb-4 flex gap-2">
+          <Button onClick={handleBulkApprove}>
+            Approve Selected ({selectedSales.length})
+          </Button>
+          <Button variant="secondary" onClick={() => setShowRejectModal(true)}>
+            Reject Selected ({selectedSales.length})
+          </Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         <Input
@@ -232,22 +391,17 @@ export const SaleListPage = () => {
               ]}
             />
           </div>
-          {user?.role === 'shop_owner' && (
-            <div className="flex-1 min-w-[200px]">
-              <Select
-                label="Salesman"
-                value={salesmanFilter}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSalesmanFilter(e.target.value)}
-                options={[
-                  { value: 'all', label: 'All Salesmen' },
-                  ...salesmen.map(salesman => ({
-                    value: salesman.id,
-                    label: salesman.name
-                  }))
-                ]}
-              />
-            </div>
-          )}
+          <div className="flex-1 min-w-[200px]">
+            <Select
+              label="Salesman"
+              value={salesmanFilter}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSalesmanFilter(e.target.value)}
+              options={[
+                { value: 'all', label: 'All Salesmen' },
+                ...salesmen.map(s => ({ value: s.id, label: s.name }))
+              ]}
+            />
+          </div>
           <div className="flex-1 min-w-[200px]">
             <Select
               label="Date"
@@ -266,76 +420,114 @@ export const SaleListPage = () => {
 
       <Table
         columns={[
+          {
+            header: (
+              <input
+                type="checkbox"
+                checked={selectedSales.length === paginatedSales.length}
+                onChange={handleSelectAllSales}
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+            ),
+            accessor: 'id',
+            render: (id) => (
+              <input
+                type="checkbox"
+                checked={selectedSales.includes(id)}
+                onChange={() => handleSelectSale(id)}
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+            ),
+          },
           { header: 'ID', accessor: 'id' },
-          { header: 'Salesman', accessor: 'salesman' },
-          { header: 'Total Amount', accessor: 'total_amount' },
-          { header: 'Status', accessor: 'status' },
-          { header: 'Date', accessor: 'date' },
-          { header: 'Actions', accessor: 'actions' }
+          { header: 'Salesman', accessor: 'salesman_id', render: (id) => getSalesmanName(id) },
+          { header: 'Amount', accessor: 'total_amount', render: (amount) => `₹${amount}` },
+          { 
+            header: 'Status', 
+            accessor: 'status',
+            render: (status) => (
+              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(status)}`}>
+                {status}
+              </span>
+            )
+          },
+          { header: 'Date', accessor: 'created_at', render: (date) => new Date(date).toLocaleDateString() },
+          {
+            header: 'Actions',
+            accessor: 'id',
+            render: (id) => (
+              <div className="space-x-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => handleViewSale(id)}
+                >
+                  View
+                </Button>
+                {user?.role === 'shop_owner' && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleApproveSale(id)}
+                      disabled={sales.find(s => s.id === id)?.status !== 'pending'}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleRejectSale(id)}
+                      disabled={sales.find(s => s.id === id)?.status !== 'pending'}
+                    >
+                      Reject
+                    </Button>
+                  </>
+                )}
+              </div>
+            ),
+          },
         ]}
-        data={paginatedSales.map(sale => ({
-          id: sale.id,
-          salesman: getSalesmanName(sale.salesman_id),
-          total_amount: `₹${sale.total_amount}`,
-          status: (
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(sale.status)}`}>
-              {sale.status}
-            </span>
-          ),
-          date: new Date(sale.created_at).toLocaleDateString(),
-          actions: (
-            <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => handleViewSale(sale.id)}
-              >
-                View
-              </Button>
-              {user?.role === 'shop_owner' && sale.status === 'pending' && (
-                <>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => handleApproveSale(sale.id)}
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleRejectSale(sale.id)}
-                  >
-                    Reject
-                  </Button>
-                </>
-              )}
-            </div>
-          )
-        }))}
+        data={paginatedSales}
       />
 
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-4 space-x-2">
-          <Button
-            variant="secondary"
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          <span className="px-4 py-2">
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant="secondary"
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
+      <Modal
+        isOpen={showRejectModal}
+        onClose={() => {
+          setShowRejectModal(false);
+          setRejectReason('');
+        }}
+      >
+        <div className="space-y-4">
+          <p>Are you sure you want to reject {selectedSales.length} selected sales?</p>
+          <div>
+            <label htmlFor="rejectReason" className="block text-sm font-medium text-gray-700">
+              Reason for rejection
+            </label>
+            <textarea
+              id="rejectReason"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              rows={3}
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setShowRejectModal(false);
+                setRejectReason('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleBulkReject}
+              disabled={!rejectReason.trim()}
+            >
+              Reject
+            </Button>
+          </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
-}; 
+};
