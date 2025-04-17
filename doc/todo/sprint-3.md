@@ -123,7 +123,7 @@
 - Assigned To: TBD
 
 #### TASK-029: Create Commission Overview UI for Salesmen
-- [ ] Priority: P0
+- [x] Priority: P0
 - Description: Implement the view for salesmen to see their earned commissions using dummy data.
 - Acceptance Criteria:
   - Display daily, weekly, monthly summaries
@@ -133,7 +133,9 @@
   - Visual representation of commission trends
   - Responsive design
 - Estimated Hours: 4
-- Assigned To: TBD
+- Assigned To: Current User
+- Started: 2024-04-14
+- Dependencies: TASK-028
 
 ### Salesman Experience UI
 

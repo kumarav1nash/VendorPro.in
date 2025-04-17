@@ -1,6 +1,6 @@
 import { AuthResponse, OTPRequestResponse, OTPVerifyResponse, RegisterResponse } from '../types';
 import { DummyUser } from '../types/dummy';
-import { dummyDataService } from './dummyData';
+import { dummyDataService } from './dummyDataService';
 
 interface AuthResponse<T = void> {
   success: boolean;

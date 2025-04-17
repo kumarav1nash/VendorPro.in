@@ -102,12 +102,13 @@ class StorageService {
 
   private loadData(): StorageData {
     const storedData = localStorage.getItem(this.STORAGE_KEY);
-    if (storedData) {
-      return JSON.parse(storedData);
-    }
+    return storedData ? JSON.parse(storedData) : this.getEmptyData();
+  }
+
+  private getEmptyData(): StorageData {
     return {
-      users: initialUsers,
-      shops: initialShops,
+      users: [],
+      shops: [],
       products: [],
       sales: [],
       saleItems: [],
@@ -193,6 +194,10 @@ class StorageService {
   // Products
   getProducts(shopId: string): DummyProduct[] {
     return this.data.products.filter(p => p.shop_id === shopId);
+  }
+
+  getAllProducts(): DummyProduct[] {
+    return this.data.products;
   }
 
   getProduct(id: string): DummyProduct | undefined {
@@ -343,6 +348,11 @@ class StorageService {
     this.data.commissions[index] = updatedCommission;
     this.saveData();
     return updatedCommission;
+  }
+
+  clearStorage() {
+    this.data = this.getEmptyData();
+    this.saveData();
   }
 }
 

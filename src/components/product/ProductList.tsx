@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DummyProduct } from '../../types/dummy';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 
 interface ProductListProps {
   shopId: string;
@@ -16,7 +16,7 @@ export const ProductList = ({ shopId }: ProductListProps) => {
       try {
         const response = await dummyDataService.getProducts(shopId);
         if (response.success) {
-          setProducts(response.data);
+          setProducts(response.data!);
         } else {
           setError('Failed to fetch products');
         }

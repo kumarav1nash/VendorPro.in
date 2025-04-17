@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { DummyShop, DummyProduct, DummySale } from '../../types/dummy';
 import Card from '../../components/ui/Card';
 import { CardHeader, CardBody } from '../../components/ui/Card';
@@ -23,18 +23,19 @@ export const ShopDashboardPage = () => {
 
         // Load shop data
         const shopResponse = await dummyDataService.getShops();
+        console.log("shop data",shopResponse)
         if (shopResponse.success && shopResponse.data && shopResponse.data.length > 0) {
-          setShop(shopResponse.data[0]); // For now, just use the first shop
+          setShop(shopResponse.data[0]); // For now, just use the first shop, TODO
         }
 
         // Load products
-        const productsResponse = await dummyDataService.getProducts(user?.id || '');
+        const productsResponse = await dummyDataService.getProducts(shop?.id || '');
         if (productsResponse.success && productsResponse.data) {
           setProducts(productsResponse.data);
         }
 
         // Load sales
-        const salesResponse = await dummyDataService.getSales(user?.id || '');
+        const salesResponse = await dummyDataService.getSales(shop?.id || '');
         if (salesResponse.success && salesResponse.data) {
           setSales(salesResponse.data);
         }
@@ -46,8 +47,9 @@ export const ShopDashboardPage = () => {
       }
     };
 
+    
     loadDashboardData();
-  }, [user]);
+  }, [shop]);
 
   if (loading) {
     return (
@@ -79,7 +81,7 @@ export const ShopDashboardPage = () => {
   const totalSales = sales.length;
   const totalRevenue = sales.reduce((sum, sale) => sum + sale.total_amount, 0);
   const lowStockProducts = products.filter(p => p.quantity < 10).length;
-
+  console.log("total product : ",totalProducts,products);
   return (
     <div className="space-y-6">
       {/* Header */}

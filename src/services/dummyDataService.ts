@@ -94,6 +94,17 @@ const dummyProducts: DummyProduct[] = [
     status: 'active',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+  },{
+    id: '2',
+    shop_id: '2',
+    name: 'Smartphone',
+    description: 'Latest model smartphone',
+    base_price: 500,
+    selling_price: 600,
+    quantity: 10,
+    status: 'active',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ];
 
@@ -101,7 +112,7 @@ const dummySales: DummySale[] = [
   {
     id: '1',
     shop_id: '1',
-    salesman_id: '3',
+    salesman_id: '2',
     total_amount: 600,
     status: 'approved',
     created_at: new Date().toISOString(),
@@ -174,7 +185,7 @@ class DummyDataService {
     this.initializeDummyData();
   }
 
-  private initializeDummyData() {
+  private initializeDummyData2() {
     try {
       // Check if storage is already initialized by checking users
       const existingUsers = storageService.getUsers();
@@ -241,7 +252,82 @@ class DummyDataService {
         });
 
         // Initialize commission rules
-        dummyCommissionRules.forEach(rule => {
+        const commissionRules = [
+          {
+            shop_id: '1',
+            name: 'Basic Commission',
+            description: 'Standard commission for Shop 1',
+            type: 'percentage' as CommissionType,
+            min_amount: 0,
+            max_amount: 1000,
+            value: 5,
+            status: 'active' as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            shop_id: '1',
+            name: 'Mid-tier Commission',
+            description: 'Higher commission for Shop 1',
+            type: 'percentage' as CommissionType,
+            min_amount: 1001,
+            max_amount: 5000,
+            value: 7,
+            status: 'active' as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            shop_id: '1',
+            name: 'Premium Commission',
+            description: 'Highest commission for Shop 1',
+            type: 'percentage' as CommissionType,
+            min_amount: 5001,
+            max_amount: 10000,
+            value: 10,
+            status: 'active' as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            shop_id: '2',
+            name: 'Basic Commission',
+            description: 'Standard commission for Shop 2',
+            type: 'percentage' as CommissionType,
+            min_amount: 0,
+            max_amount: 1000,
+            value: 4,
+            status: 'active' as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            shop_id: '2',
+            name: 'Mid-tier Commission',
+            description: 'Higher commission for Shop 2',
+            type: 'percentage' as CommissionType,
+            min_amount: 1001,
+            max_amount: 5000,
+            value: 6,
+            status: 'active' as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            shop_id: '2',
+            name: 'Premium Commission',
+            description: 'Highest commission for Shop 2',
+            type: 'percentage' as CommissionType,
+            min_amount: 5001,
+            max_amount: 10000,
+            value: 8,
+            status: 'active' as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ];
+
+        commissionRules.forEach(rule => {
           storageService.createCommissionRule({
             ...rule,
             created_at: new Date().toISOString(),
@@ -257,6 +343,69 @@ class DummyDataService {
       console.error('Error initializing dummy data:', error);
     }
   }
+  private initializeDummyData() {
+    try {
+      // Check if ANY critical data exists
+      const hasData = [
+        storageService.getUsers(),
+        storageService.getShops(),
+        storageService.getAllProducts()
+      ].some(arr => arr.length > 0);
+
+      if (!hasData) {
+        console.log('Initializing fresh dummy data...');
+        
+        // Initialize users with their original IDs
+        dummyUsers.forEach(user => 
+          storageService.createUser({ ...user })
+        );
+
+        // Initialize shops with original IDs
+        dummyShops.forEach(shop => 
+          storageService.createShop({ ...shop })
+        );
+
+        // Initialize products
+        dummyProducts.forEach(product => 
+          storageService.createProduct({ ...product })
+        );
+
+        // Initialize sales
+        dummySales.forEach(sale => 
+          storageService.createSale({ ...sale })
+        );
+
+        // Initialize sale items
+        dummySaleItems.forEach(item => 
+          storageService.createSaleItem({ ...item })
+        );
+
+        // Initialize commission rules
+        dummyCommissionRules.forEach(rule => 
+          storageService.createCommissionRule({ ...rule })
+        );
+
+        // Initialize commissions
+        dummyCommissions.forEach(commission => 
+          storageService.createCommission({
+            ...commission,
+          })
+        );
+
+        console.log('Dummy data initialized successfully');
+      } else {
+        console.log('Existing data found, skipping initialization');
+      }
+    } catch (error) {
+      console.error('Dummy data initialization failed:', error);
+    }
+  }
+
+  // Reset method for development
+  resetStorage() {
+    storageService.clearStorage();
+    this.initializeDummyData();
+  }
 
   // User methods
   async getUser(id: string): Promise<ServiceResponse<DummyUser>> {
@@ -268,6 +417,16 @@ class DummyDataService {
 
   async getUsers(): Promise<ServiceResponse<DummyUser[]>> {
     return { success: true, data: storageService.getUsers() };
+  }
+
+  async createUser(user: Omit<DummyUser, 'id'>): Promise<ServiceResponse<DummyUser>>{
+    const userWithTimestamps = {
+      ...user,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    const newUser = storageService.createUser(userWithTimestamps)
+    return { success: true, data: newUser };
   }
 
   // Shop methods
@@ -282,7 +441,7 @@ class DummyDataService {
       : { success: false, error: 'Shop not found' };
   }
 
-  async createShop(shop: Omit<DummyShop, 'id'>): Promise<ServiceResponse<DummyShop>> {
+  async createShop(shop: Omit<DummyShop, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceResponse<DummyShop>> {
     const shopWithTimestamps = {
       ...shop,
       created_at: new Date().toISOString(),
@@ -311,7 +470,7 @@ class DummyDataService {
       : { success: false, error: 'Product not found' };
   }
 
-  async createProduct(product: Omit<DummyProduct, 'id'>): Promise<ServiceResponse<DummyProduct>> {
+  async createProduct(product: Omit<DummyProduct, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceResponse<DummyProduct>> {
     const productWithTimestamps = {
       ...product,
       created_at: new Date().toISOString(),

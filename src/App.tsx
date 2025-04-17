@@ -19,6 +19,7 @@ import { SalesEntryPage } from './pages/sale/SalesEntryPage';
 import { SaleDetailsPage } from './pages/sale/SaleDetailsPage';
 import { CommissionStructurePage } from './pages/commission/CommissionStructurePage';
 import { CommissionCalculationPage } from './pages/commission/CommissionCalculationPage';
+import { SalesmanCommissionOverviewPage } from './pages/commission/SalesmanCommissionOverviewPage';
 
 export const App = () => {
   return (
@@ -41,7 +42,16 @@ export const App = () => {
               <Route index element={<Navigate to="/dashboard" replace />} />
               
               {/* Shop Routes */}
-              <Route path="dashboard" element={<ShopDashboardPage />} />
+              <Route path="dashboard" element={
+                <ProtectedRoute>
+                  {({ user }) => {
+                    if (user?.role === 'salesman') {
+                      return <Navigate to="/commission/calculations" replace />;
+                    }
+                    return <ShopDashboardPage />;
+                  }}
+                </ProtectedRoute>
+              } />
               <Route path="shops" element={<ShopListPage />} />
               <Route path="shops/:shopId" element={<ShopDetailsPage />} />
 
@@ -114,8 +124,16 @@ export const App = () => {
               <Route
                 path="commission/calculations"
                 element={
-                  <ProtectedRoute roles={['shop_owner']}>
+                  <ProtectedRoute roles={['shop_owner', 'salesman']}>
                     <CommissionCalculationPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="commission/overview"
+                element={
+                  <ProtectedRoute roles={['salesman']}>
+                    <SalesmanCommissionOverviewPage />
                   </ProtectedRoute>
                 }
               />

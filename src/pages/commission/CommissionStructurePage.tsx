@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { DummyCommissionRule, CommissionType, DummyShop } from '../../types/dummy';
 import { Button } from '../../components/ui/Button';
 import { Table } from '../../components/ui/Table';

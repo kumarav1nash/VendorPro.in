@@ -15,7 +15,7 @@ export const MainLayout = () => {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <Link to="/" className="text-xl font-bold text-indigo-600">
+                <Link to={user?.role === 'salesman' ? '/commission/calculations' : '/'} className="text-xl font-bold text-indigo-600">
                   VendorPro
                 </Link>
               </div>
@@ -76,6 +76,18 @@ export const MainLayout = () => {
                             }`}
                           >
                             Commission Rules
+                          </Link>
+                        )}
+                        {user?.role === 'salesman' && (
+                          <Link
+                            to="/commission/overview"
+                            className={`block px-4 py-2 text-sm ${
+                              isActive('/commission/overview')
+                                ? 'bg-gray-100 text-gray-900'
+                                : 'text-gray-700 hover:bg-gray-100'
+                            }`}
+                          >
+                            My Commission Overview
                           </Link>
                         )}
                         <Link

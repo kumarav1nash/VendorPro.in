@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
-import ShopDetailsPage from './pages/shop/ShopDetailsPage';
+import {ShopDetailsPage} from './pages/shop/ShopDetailsPage';
 
 export const router = createBrowserRouter([
   {

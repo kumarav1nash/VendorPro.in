@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { ProductForm } from '../../components/product/ProductForm';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { useState, useEffect } from 'react';
 import { LoadingState } from '../../components/ui/LoadingState';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';

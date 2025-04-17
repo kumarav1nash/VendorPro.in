@@ -2,8 +2,11 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { DummyUser } from '../types/dummy';
 import { authService } from '../services/auth';
 
+// Define a type for user without password
+type UserWithoutPassword = Omit<DummyUser, 'password'>;
+
 interface AuthContextType {
-  user: DummyUser | null;
+  user: UserWithoutPassword | null;
   loading: boolean;
   signInWithPassword: (email: string, password: string) => Promise<void>;
   signInWithOtp: (email: string) => Promise<void>;
@@ -18,7 +21,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<DummyUser | null>(null);
+  const [user, setUser] = useState<UserWithoutPassword | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

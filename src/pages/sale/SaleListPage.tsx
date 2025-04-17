@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { DummySale, DummyUser } from '../../types/dummy';
 import { Button } from '../../components/ui/Button';
 import { Table } from '../../components/ui/Table';
@@ -8,6 +8,9 @@ import Input from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { useNavigate } from 'react-router-dom';
 import { Modal } from '../../components/ui/Modal';
+
+// Define a type for user without password
+type UserWithoutPassword = Omit<DummyUser, 'password'>;
 
 export const SaleListPage = () => {
   const { user } = useAuth();
@@ -48,7 +51,7 @@ export const SaleListPage = () => {
             }
             
             setSales(allShopSales);
-            
+            console.log("from sale list page",allShopSales);
             // Load salesmen assigned to these shops
             const assignedSalesmen = new Set<string>();
             userShops.forEach(shop => {
@@ -88,7 +91,12 @@ export const SaleListPage = () => {
             }
             
             setSales(allShopSales);
-            setSalesmen([user]); // Salesmen only see themselves in the filter
+            // Add a default password to the user object to satisfy the DummyUser type
+            const userWithPassword = {
+              ...user,
+              password: '' // Add an empty password to satisfy the type
+            } as DummyUser;
+            setSalesmen([userWithPassword]); // Salesmen only see themselves in the filter
           }
         }
       } catch (err) {
@@ -107,10 +115,10 @@ export const SaleListPage = () => {
     if (!salesman) {
       // If we can't find the salesman, try to get it from the service
       dummyDataService.getUser(salesmanId).then(response => {
-        if (response.success && response.data) {
+        if (response.success && response.data!) {
           setSalesmen(prev => {
-            const exists = prev.some(s => s.id === response.data.id);
-            if (!exists) {
+            const exists = prev.some(s => s.id === response.data?.id);
+            if (response.data && !exists) {
               return [...prev, response.data];
             }
             return prev;
@@ -486,7 +494,6 @@ export const SaleListPage = () => {
           setShowRejectModal(false);
           setRejectReason('');
         }}
-        title="Reject Sales"
       >
         <div className="space-y-4">
           <p>Are you sure you want to reject {selectedSales.length} selected sales?</p>
@@ -523,4 +530,4 @@ export const SaleListPage = () => {
       </Modal>
     </div>
   );
-}; 
+};

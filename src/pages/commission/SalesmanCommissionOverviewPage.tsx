@@ -1,24 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { dummyDataService } from '../../services/dummyDataService';
-import { Button } from '../../components/ui/Button';
 import { Table } from '../../components/ui/Table';
-import { Select } from '../../components/ui/Select';
 import Input from '../../components/ui/Input';
 import { LoadingState } from '../../components/ui/LoadingState';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { EmptyState } from '../../components/ui/EmptyState';
 
-export const CommissionCalculationPage = () => {
+export const SalesmanCommissionOverviewPage = () => {
   const { user } = useAuth();
   const [sales, setSales] = useState<any[]>([]);
-  const [salesmen, setSalesmen] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
-    salesmanId: '',
   });
 
   useEffect(() => {
@@ -30,45 +26,34 @@ export const CommissionCalculationPage = () => {
       setLoading(true);
       setError(null);
 
-      // Get shop ID based on user role
-      let shopId = '';
-      if (user?.role === 'shop_owner') {
-        const shopsResponse = await dummyDataService.getShops();
-        if (shopsResponse.success && shopsResponse.data) {
-          shopId = shopsResponse.data[0]?.id || '';
-        }
-      } else if (user?.role === 'salesman') {
-        const shopsResponse = await dummyDataService.getShops();
-        if (shopsResponse.success && shopsResponse.data) {
-          const assignedShop = shopsResponse.data.find(shop => 
-            shop.shop_salesmen?.includes(user.id)
-          );
-          shopId = assignedShop?.id || '';
-        }
+      if (!user || user.role !== 'salesman') {
+        throw new Error('Access denied. This page is only for salesmen.');
       }
 
-      if (!shopId) {
-        throw new Error('No shop found for the user');
+      // Get shop ID for the salesman
+      const shopsResponse = await dummyDataService.getShops();
+      if (!shopsResponse.success || !shopsResponse.data) {
+        throw new Error('Failed to load shops');
       }
 
-      // Load salesmen
-      const salesmenResponse = await dummyDataService.getSalesmen();
-      if (!salesmenResponse.success || !salesmenResponse.data) {
-        throw new Error(salesmenResponse.error || 'Failed to load salesmen');
-      }
-      setSalesmen(salesmenResponse.data);
+      const assignedShop = shopsResponse.data.find(shop => 
+        shop.shop_salesmen?.includes(user.id)
+      );
 
-      // Load sales
-      const salesResponse = await dummyDataService.getSales(shopId);
+      if (!assignedShop) {
+        throw new Error('No shop assigned to this salesman');
+      }
+
+      // Load sales for this salesman
+      const salesResponse = await dummyDataService.getSales(assignedShop.id);
       if (!salesResponse.success || !salesResponse.data) {
-        throw new Error(salesResponse.error || 'Failed to load sales');
+        throw new Error('Failed to load sales');
       }
-      console.log("from commission page",shopId,salesResponse)
 
-
-      // Calculate commissions for each sale
+      // Filter sales for this salesman and calculate commissions
+      const salesmanSales = salesResponse.data.filter(sale => sale.salesman_id === user.id);
       const salesWithCommissions = await Promise.all(
-        salesResponse.data.map(async (sale) => {
+        salesmanSales.map(async (sale) => {
           const commissionResponse = await dummyDataService.calculateCommission(sale.id);
           return {
             ...sale,
@@ -86,7 +71,7 @@ export const CommissionCalculationPage = () => {
     }
   };
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFilters(prev => ({
       ...prev,
@@ -97,11 +82,8 @@ export const CommissionCalculationPage = () => {
   const filteredSales = sales.filter(sale => {
     const matchesDate = !filters.startDate || new Date(sale.date) >= new Date(filters.startDate);
     const matchesEndDate = !filters.endDate || new Date(sale.date) <= new Date(filters.endDate);
-    const matchesSalesman = !filters.salesmanId || sale.salesman_id === filters.salesmanId;
-    return matchesDate && matchesEndDate && matchesSalesman;
+    return matchesDate && matchesEndDate;
   });
-
-  console.log(filteredSales)
 
   const totalSales = filteredSales.reduce((sum, sale) => sum + sale.total_amount, 0);
   const totalCommission = filteredSales.reduce((sum, sale) => 
@@ -110,6 +92,9 @@ export const CommissionCalculationPage = () => {
   const averageCommission = filteredSales.length > 0 
     ? totalCommission / filteredSales.length 
     : 0;
+  const pendingCommission = filteredSales.reduce((sum, sale) => 
+    sum + (sale.commission?.status === 'pending' ? sale.commission?.amount || 0 : 0), 0
+  );
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorMessage message={error} />;
@@ -120,15 +105,15 @@ export const CommissionCalculationPage = () => {
       <div className="mb-8">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Commission Calculations</h1>
+            <h1 className="text-3xl font-bold text-gray-900">My Commission Overview</h1>
             <p className="mt-2 text-sm text-gray-600">
-              View and manage commission calculations for sales
+              Track your sales performance and commission earnings
             </p>
           </div>
         </div>
 
         {/* Stats Section */}
-        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-4">
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <dt className="text-sm font-medium text-gray-500 truncate">Total Sales</dt>
@@ -151,12 +136,20 @@ export const CommissionCalculationPage = () => {
               </dd>
             </div>
           </div>
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="px-4 py-5 sm:p-6">
+              <dt className="text-sm font-medium text-gray-500 truncate">Pending Commission</dt>
+              <dd className="mt-1 text-3xl font-semibold text-yellow-600">
+                ₹{pendingCommission.toFixed(2)}
+              </dd>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Filters */}
       <div className="bg-white shadow rounded-lg p-6 mb-6">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
             <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
               Start Date
@@ -189,25 +182,6 @@ export const CommissionCalculationPage = () => {
               onBlur={(e) => e.target.type = 'text'}
             />
           </div>
-          <div>
-            <label htmlFor="salesmanId" className="block text-sm font-medium text-gray-700">
-              Salesman
-            </label>
-            <Select
-              id="salesmanId"
-              name="salesmanId"
-              value={filters.salesmanId}
-              onChange={handleFilterChange}
-              options={[
-                { value: '', label: 'All Salesmen' },
-                ...salesmen.map(salesman => ({
-                  value: salesman.id,
-                  label: salesman.name
-                }))
-              ]}
-              className="mt-1"
-            />
-          </div>
         </div>
       </div>
 
@@ -215,13 +189,12 @@ export const CommissionCalculationPage = () => {
       {filteredSales.length === 0 ? (
         <EmptyState
           title="No Sales Found"
-          description="No sales match the selected filters"
+          description="No sales match the selected date range"
           action={{
             label: "Clear Filters",
             onClick: () => setFilters({
               startDate: '',
               endDate: '',
-              salesmanId: ''
             })
           }}
         />
@@ -233,14 +206,6 @@ export const CommissionCalculationPage = () => {
                 header: 'Date', 
                 accessor: 'date',
                 render: (date) => new Date(date).toLocaleDateString()
-              },
-              { 
-                header: 'Salesman', 
-                accessor: 'salesman_id',
-                render: (salesmanId) => {
-                  const salesman = salesmen.find(s => s.id === salesmanId);
-                  return salesman?.name || 'Unknown';
-                }
               },
               { 
                 header: 'Sale Amount', 

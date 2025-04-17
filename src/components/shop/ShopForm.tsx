@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DummyShop } from '../../types/dummy';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 
 interface ShopFormProps {
   shop?: DummyShop;
@@ -24,6 +24,7 @@ export const ShopForm = ({ shop, onSuccess, onCancel }: ShopFormProps) => {
     phone: shop?.phone || '',
     email: shop?.email || '',
     gst_number: shop?.gst_number || '',
+    shop_salesmen: shop?.shop_salesmen || new Array,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

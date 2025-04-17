@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { SalesEntryForm } from '../../components/sale/SalesEntryForm';
-import { dummyDataService } from '../../services/dummyData';
+import { dummyDataService } from '../../services/dummyDataService';
 import { LoadingState } from '../../components/ui/LoadingState';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 
